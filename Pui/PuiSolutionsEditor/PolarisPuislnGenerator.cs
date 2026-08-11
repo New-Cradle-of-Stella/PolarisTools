@@ -113,7 +113,7 @@ public sealed class PolarisPuislnGenerator : IVsSingleFileGenerator
                 }
                 else
                 {
-                    progress?.GeneratorError(1, 0, $"找不到状态节点「{node.Title}」绑定的 .pui 文件：{puiPath}", 0, 0);
+                    progress?.GeneratorError(1, 0, $"Could not find the .pui file bound to state node \"{node.Title}\": {puiPath}", 0, 0);
                 }
             }
             nodeTransitions[nodeIndex] = result;
@@ -191,7 +191,7 @@ public sealed class PolarisPuislnGenerator : IVsSingleFileGenerator
             if (transition == null)
             {
                 progress?.GeneratorError(1, 0,
-                    $"状态节点「{sourceNode.Title}」的连接点已失效（对应的 .pui 状态连接点被删除或改动），已跳过这条连线，请刷新该节点后重新连线", 0, 0);
+                    $"The connector of state node \"{sourceNode.Title}\" is stale (the matching .pui state connector was deleted or changed); this edge was skipped. Refresh the node and reconnect it", 0, 0);
                 continue;
             }
 
@@ -199,15 +199,15 @@ public sealed class PolarisPuislnGenerator : IVsSingleFileGenerator
             if (string.IsNullOrEmpty(triggerKey))
             {
                 progress?.GeneratorError(1, 0,
-                    $"状态节点「{sourceNode.Title}」的连接点「{transition.DisplayLabel}」未配置有效触发方式，已跳过这条连线", 0, 0);
+                    $"The connector \"{transition.DisplayLabel}\" of state node \"{sourceNode.Title}\" has no valid trigger configured; this edge was skipped", 0, 0);
                 continue;
             }
 
             if (!edgeKeys.Add((sourceKey, triggerKey)))
             {
                 progress?.GeneratorError(1, 0,
-                    $"状态节点「{sourceNode.Title}」的连接点「{transition.DisplayLabel}」与另一条连线的触发键重复" +
-                    "（同一个来源节点的同一个触发键只能指向一个目标），已跳过这条连线", 0, 0);
+                    $"The connector \"{transition.DisplayLabel}\" of state node \"{sourceNode.Title}\" has the same trigger key as another edge" +
+                    " (one trigger key on one source node can only point at a single target); this edge was skipped", 0, 0);
                 continue;
             }
 

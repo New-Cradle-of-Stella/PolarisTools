@@ -34,7 +34,7 @@ namespace PolarisTools.Lang
             string error = null;
             if (key.Length > 0 && keyExists != null && keyExists(key))
             {
-                error = $"「{key}」已经在这份文件里了，换一个名字。";
+                error = $"\"{key}\" is already in this file; pick another name.";
             }
 
             KeyError.Text = error ?? "";

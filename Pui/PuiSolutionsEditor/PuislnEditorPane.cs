@@ -130,7 +130,7 @@ namespace PolarisTools.Pui.PuiSolutions
                 {
                     var dlg = new Microsoft.Win32.SaveFileDialog
                     {
-                        Title = "另存为 PUI 解决方案图",
+                        Title = "Save PUI solution graph as",
                         Filter = "PUI Solution (*.puisln)|*.puisln",
                         DefaultExt = Ext,
                         AddExtension = true,

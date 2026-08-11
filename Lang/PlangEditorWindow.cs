@@ -13,7 +13,7 @@ namespace PolarisTools.Lang
     {
         public PlangEditorWindow() : base(null)
         {
-            this.Caption = "PLang 本地化编辑器";
+            this.Caption = "PLang Localization Editor";
             this.Content = new PlangEditorControl(isToolWindowHost: true);
         }
 

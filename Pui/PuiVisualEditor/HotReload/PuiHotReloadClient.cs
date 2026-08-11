@@ -30,7 +30,7 @@ public static class PuiHotReloadClient
                 }
                 catch (TimeoutException)
                 {
-                    return (false, "未连接到正在运行的游戏（请确认游戏已启动，且目标插件已启用 PUIHotFixEnabled）");
+                    return (false, "Not connected to a running game (check that the game is started and the target plugin has PUIHotFixEnabled)");
                 }
 
                 using (var writer = new BinaryWriter(pipe, Encoding.UTF8, leaveOpen: true))
@@ -49,7 +49,7 @@ public static class PuiHotReloadClient
         }
         catch (Exception ex)
         {
-            return (false, $"热重载失败：{ex.Message}");
+            return (false, $"Hot reload failed: {ex.Message}");
         }
     }
 }

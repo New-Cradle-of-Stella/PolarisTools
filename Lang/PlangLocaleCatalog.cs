@@ -43,10 +43,10 @@ namespace PolarisTools.Lang
     {
         public static IReadOnlyList<PlangLocaleInfo> BuiltIn { get; } = new[]
         {
-            new PlangLocaleInfo("_", "JP", "日本語", "游戏默认语言，family key 就是一个下划线"),
-            new PlangLocaleInfo("en", "EN", "English", "没有匹配到系统语言时游戏用它兜底"),
+            new PlangLocaleInfo("_", "JP", "日本語", "The game's default language; the family key really is a single underscore"),
+            new PlangLocaleInfo("en", "EN", "English", "Used as the fallback when no system language matches"),
             new PlangLocaleInfo("zh-cn", "CN", "简体中文"),
-            new PlangLocaleInfo("zh-tc", "TC", "繁體中文", "注意是 zh-tc，不是 zh-tw"),
+            new PlangLocaleInfo("zh-tc", "TC", "繁體中文", "Note it is zh-tc, not zh-tw"),
             new PlangLocaleInfo("ko-kr", "KR", "한국어"),
             new PlangLocaleInfo("th", "TH", "ไทย"),
         };

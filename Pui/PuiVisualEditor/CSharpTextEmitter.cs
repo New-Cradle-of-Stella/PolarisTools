@@ -222,16 +222,36 @@ internal sealed class CSharpTextEmitter : IPuiEmitter
     {
         string varName = NextVar();
         lines.Add($"var {varName} = new DsnDataImg {{ name = \"{Esc(p.Name)}\", swidth = {F(p.Width)}, sheight = {F(p.Height)}, " +
-            $"scale = {F(p.Scale)}, stencil_lessequal = {B(p.StencilLessEqual)}, " +
-            $"UvRect = new UnityEngine.Rect({F(p.UvX)}, {F(p.UvY)}, {F(p.UvW)}, {F(p.UvH)}) }};");
-        if (!string.IsNullOrEmpty(p.ImageSource))
+            $"stencil_lessequal = {B(p.StencilLessEqual)} }};");
+
+        // MI 之外的 UvRect/scale 不直接填：DsnDataImg 的 UvRect 其实是"纹理像素矩形"、绘制尺寸
+        // 只由 UvRect 尺寸 × scale 决定（跟 swidth/sheight 无关），照字面填只会画出一个 1px 的点。
+        // 换算统一交给运行时的 Polaris.PUI.PuiImage.Assign——热重载走的是同一个方法，两条路径
+        // 不会一边对一边错。
+        string imageExpr = null;
+        if (!string.IsNullOrEmpty(p.ImageResource))
         {
-            // ImageSource 是 PolarisRes 挂载相对路径；modId 用当前程序集名——和
-            // AutoBindScanner 用 assembly.GetName().Name 当 modId 的约定保持一致，
-            // 不需要在编辑器里再让用户填一遍。Own.Image 按路径去重缓存，重复 BuildUI
-            // 不会重复解码。
-            lines.Add($"{varName}.MI = Polaris.Res.PolarisResAPI.For(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name).Own.Image(\"{Esc(p.ImageSource)}\");");
+            // 资源字段引用（属性面板里选的那个 [PolarisResource] MImage static 字段）：直接读字段，
+            // 不再走一次挂载表查询——PolarisRes 的 AutoBindScanner 在插件加载时就已经按
+            // [PolarisResourceFolder] 挂好目录、把 MImage 填进这个字段了。加 global:: 前缀，
+            // 免得跟 .pui.cs 所在命名空间里的同名类型撞车。
+            imageExpr = $"global::{p.ImageResource}";
         }
+        else if (!string.IsNullOrEmpty(p.ImageSource))
+        {
+            // 早期写法（手写 XML 才可能有）：ImageSource 是 PolarisRes 挂载相对路径；modId 用当前
+            // 程序集名——和 AutoBindScanner 用 assembly.GetName().Name 当 modId 的约定保持一致。
+            // 注意它查的是 modId 那张共享挂载表，需要模组自己 Mount/MountDefault 过；自动绑定用的
+            // 是按类分开的表，两者不通。Own.Image 按路径去重缓存，重复 BuildUI 不会重复解码。
+            imageExpr = $"Polaris.Res.PolarisResAPI.For(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name).Own.Image(\"{Esc(p.ImageSource)}\")";
+        }
+
+        if (imageExpr != null)
+        {
+            lines.Add($"global::Polaris.PUI.PuiImage.Assign({varName}, {imageExpr}, " +
+                $"{F(p.UvX)}, {F(p.UvY)}, {F(p.UvW)}, {F(p.UvH)}, {F(p.Width)}, {F(p.Height)}, {F(p.Scale)});");
+        }
+
         lines.Add($"designer.addImg({varName});");
     }
 

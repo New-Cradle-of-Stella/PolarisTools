@@ -200,7 +200,7 @@
                              Padding="26,4,22,4" TextChanged="SearchBox_TextChanged"/>
                     <Path Style="{StaticResource PlangSmallIconStyle}" Data="{x:Static icons:PuiIconCatalog.Search}"
                           HorizontalAlignment="Left" Margin="8,0,0,0" Opacity="0.6" IsHitTestVisible="False"/>
-                    <TextBlock Text="搜索 Key 或文案" Margin="27,0,0,0">
+                    <TextBlock Text="Search keys or text" Margin="27,0,0,0">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource PlangWatermarkStyle}">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -213,7 +213,7 @@
                         </TextBlock.Style>
                     </TextBlock>
                     <Button HorizontalAlignment="Right" Margin="0,0,3,0"
-                            Click="ClearSearch_Click" ToolTip="清空搜索">
+                            Click="ClearSearch_Click" ToolTip="Clear search">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource PlangIconButtonStyle}">
                                 <Setter Property="Visibility" Value="Visible"/>
@@ -229,48 +229,48 @@
                 </Grid>
 
                 <Button DockPanel.Dock="Left" Style="{StaticResource PlangToolbarButtonStyle}" Click="AddKey_Click"
-                        ToolTip="新增一个 Key：在弹出的对话框里一次填好 Key、说明和中性值">
+                        ToolTip="Add a key: fill in the key, description and neutral value at once in the dialog">
                     <StackPanel Orientation="Horizontal">
                         <Path Style="{StaticResource PlangIconStyle}" Data="{x:Static icons:PuiIconCatalog.Plus}"/>
-                        <TextBlock Text="新增 Key"/>
+                        <TextBlock Text="Add Key"/>
                     </StackPanel>
                 </Button>
-                <Button DockPanel.Dock="Left" Style="{StaticResource PlangToolbarButtonStyle}" Click="RemoveKey_Click" ToolTip="删除选中的 Key（可多选）">
+                <Button DockPanel.Dock="Left" Style="{StaticResource PlangToolbarButtonStyle}" Click="RemoveKey_Click" ToolTip="Delete the selected keys (multi-select allowed)">
                     <StackPanel Orientation="Horizontal">
                         <Path Style="{StaticResource PlangIconStyle}" Data="{x:Static icons:PuiIconCatalog.Trash}"/>
-                        <TextBlock Text="删除 Key"/>
+                        <TextBlock Text="Delete Key"/>
                     </StackPanel>
                 </Button>
                 <Button DockPanel.Dock="Left" Style="{StaticResource PlangToolbarButtonStyle}" Click="EditRow_Click"
-                        ToolTip="把选中这一行的全部文案（说明、中性值、每门启用的语言）摊在一个窗口里改">
+                        ToolTip="Edit all text of the selected row (description, neutral value and every enabled language) in one window">
                     <StackPanel Orientation="Horizontal">
                         <Path Style="{StaticResource PlangIconStyle}" Data="{x:Static icons:PuiIconCatalog.Pencil}"/>
-                        <TextBlock Text="编辑这一行"/>
+                        <TextBlock Text="Edit this row"/>
                     </StackPanel>
                 </Button>
 
                 <Rectangle DockPanel.Dock="Left" Style="{StaticResource PlangToolbarSeparatorStyle}"/>
 
                 <Button DockPanel.Dock="Left" Style="{StaticResource PlangToolbarButtonStyle}" Click="Save_Click"
-                        ToolTip="保存并生成 C# 类（存盘后自动跑一遍代码生成，不用再单独点一次）">
+                        ToolTip="Save and generate the C# class (code generation runs automatically on save)">
                     <StackPanel Orientation="Horizontal">
                         <Path Style="{StaticResource PlangIconStyle}" Data="{x:Static icons:PuiIconCatalog.Save}"/>
-                        <TextBlock Text="保存"/>
+                        <TextBlock Text="Save"/>
                     </StackPanel>
                 </Button>
 
                 <Rectangle DockPanel.Dock="Left" Style="{StaticResource PlangToolbarSeparatorStyle}"/>
 
-                <Button DockPanel.Dock="Left" Style="{StaticResource PlangToolbarButtonStyle}" Click="ExportCsv_Click" ToolTip="把当前表格导出成 CSV（发给翻译的人）">
+                <Button DockPanel.Dock="Left" Style="{StaticResource PlangToolbarButtonStyle}" Click="ExportCsv_Click" ToolTip="Export the current grid as CSV (to send to translators)">
                     <StackPanel Orientation="Horizontal">
                         <Path Style="{StaticResource PlangIconStyle}" Data="{x:Static icons:PuiIconCatalog.Export}"/>
-                        <TextBlock Text="导出 CSV"/>
+                        <TextBlock Text="Export CSV"/>
                     </StackPanel>
                 </Button>
-                <Button DockPanel.Dock="Left" Style="{StaticResource PlangToolbarButtonStyle}" Click="ImportCsv_Click" ToolTip="从 CSV 导入/合并（按 Key 覆盖，出现新语言代码会自动加一列）">
+                <Button DockPanel.Dock="Left" Style="{StaticResource PlangToolbarButtonStyle}" Click="ImportCsv_Click" ToolTip="Import/merge from CSV (overrides by key; a new language code automatically adds a column)">
                     <StackPanel Orientation="Horizontal">
                         <Path Style="{StaticResource PlangIconStyle}" Data="{x:Static icons:PuiIconCatalog.Import}"/>
-                        <TextBlock Text="导入 CSV"/>
+                        <TextBlock Text="Import CSV"/>
                     </StackPanel>
                 </Button>
             </DockPanel>
@@ -283,17 +283,17 @@
                 BorderBrush="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowBorderBrushKey}}"
                 BorderThickness="0,0,0,1">
             <DockPanel LastChildFill="True">
-                <TextBlock DockPanel.Dock="Left" Text="语言" Style="{StaticResource PlangCaptionStyle}" Margin="2,0,10,0"/>
+                <TextBlock DockPanel.Dock="Left" Text="Language" Style="{StaticResource PlangCaptionStyle}" Margin="2,0,10,0"/>
                 <Button DockPanel.Dock="Right" Style="{StaticResource PlangToolbarButtonStyle}" Margin="4,0,0,0"
-                        Click="AddLanguage_Click" ToolTip="从游戏自带的语言里点选，也可以手填第三方语言包的代码">
+                        Click="AddLanguage_Click" ToolTip="Pick from the languages shipped with the game, or type a third-party language pack code">
                     <StackPanel Orientation="Horizontal">
                         <Path Style="{StaticResource PlangIconStyle}" Data="{x:Static icons:PuiIconCatalog.Plus}"/>
-                        <TextBlock Text="添加语言"/>
+                        <TextBlock Text="Add language"/>
                     </StackPanel>
                 </Button>
 
                 <!-- 一种语言都没加时给条提示，免得空着一条看不懂要干什么。 -->
-                <TextBlock DockPanel.Dock="Left" Text="还没有语言，先点右边的「添加语言」——只填中性值的话游戏里所有语言都显示同一份文案。"
+                <TextBlock DockPanel.Dock="Left" Text="No languages yet -- click &quot;Add language&quot; on the right. With only a neutral value, every language in the game shows the same text."
                            VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource PlangCaptionStyle}">
@@ -319,7 +319,7 @@
                                 <Border Style="{StaticResource LanguageChipBorderStyle}">
                                     <StackPanel Orientation="Horizontal">
                                         <ToggleButton Style="{StaticResource LanguageChipToggleStyle}" IsChecked="{Binding Enabled}"
-                                                      ToolTip="点一下停用/启用这门语言：停用只是收起表格里的这一列、不参与代码生成，已填的文案不会丢">
+                                                      ToolTip="Click to disable/enable this language: disabling only collapses its column and excludes it from code generation; text already filled in is not lost">
                                             <StackPanel Orientation="Horizontal">
                                                 <Path Style="{StaticResource PlangSmallIconStyle}" Data="{x:Static icons:PuiIconCatalog.Check}"
                                                       Width="8" Height="8" Margin="0,0,5,0" StrokeThickness="1.8"
@@ -332,7 +332,7 @@
                                                         VerticalAlignment="Center" BorderThickness="1" Background="Transparent"
                                                         BorderBrush="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowValidationErrorBorderBrushKey}}"
                                                         Visibility="{Binding HasMissing, Converter={StaticResource boolToVis}}"
-                                                        ToolTip="这门语言还有这么多条没填文案（取词时会退回中性值）">
+                                                        ToolTip="This many rows are still empty for this language (lookups fall back to the neutral value)">
                                                     <TextBlock Text="{Binding MissingCount}" FontSize="9" VerticalAlignment="Center" HorizontalAlignment="Center"
                                                                Foreground="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowValidationErrorTextBrushKey}}"/>
                                                 </Border>
@@ -340,7 +340,7 @@
                                         </ToggleButton>
                                         <Button Style="{StaticResource PlangIconButtonStyle}" Click="RemoveLanguage_Click" Tag="{Binding}"
                                                 Margin="0,0,3,0" VerticalAlignment="Center"
-                                                ToolTip="移除这门语言（各行已填的文案保留，重新用同样代码添加回来能找回）">
+                                                ToolTip="Remove this language (text already filled in is kept; adding it back with the same code restores it)">
                                             <Path Style="{StaticResource PlangSmallIconStyle}" Data="{x:Static icons:PuiIconCatalog.Close}" Width="8" Height="8"/>
                                         </Button>
                                     </StackPanel>
@@ -373,11 +373,11 @@
                                         Binding="{Binding Key, UpdateSourceTrigger=PropertyChanged}"
                                         ElementStyle="{StaticResource KeyCellStyle}"
                                         EditingElementStyle="{StaticResource KeyCellEditStyle}"/>
-                    <DataGridTextColumn Header="说明" Width="170"
+                    <DataGridTextColumn Header="Description" Width="170"
                                         Binding="{Binding Comment, UpdateSourceTrigger=PropertyChanged}"
                                         ElementStyle="{StaticResource TextCellStyle}"
                                         EditingElementStyle="{StaticResource TextCellEditStyle}"/>
-                    <DataGridTextColumn x:Name="NeutralColumn" Header="中性值" Width="240"
+                    <DataGridTextColumn x:Name="NeutralColumn" Header="Neutral" Width="240"
                                         Binding="{Binding NeutralValue, UpdateSourceTrigger=PropertyChanged}"
                                         ElementStyle="{StaticResource TextCellStyle}"
                                         EditingElementStyle="{StaticResource TextCellEditStyle}"/>
@@ -397,9 +397,9 @@
                         </Style.Triggers>
                     </Style>
                 </StackPanel.Style>
-                <TextBlock Text="还没有任何 Key" FontSize="14" HorizontalAlignment="Center" Opacity="0.7"
+                <TextBlock Text="No keys yet" FontSize="14" HorizontalAlignment="Center" Opacity="0.7"
                            Foreground="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-                <TextBlock Text="点左上角的「新增 Key」加第一条文案" HorizontalAlignment="Center" Margin="0,6,0,0"
+                <TextBlock Text="Click &quot;Add Key&quot; in the top-left to add the first entry" HorizontalAlignment="Center" Margin="0,6,0,0"
                            Style="{StaticResource PlangCaptionStyle}"/>
             </StackPanel>
         </Grid>
@@ -410,10 +410,10 @@
                 BorderThickness="0,1,0,0">
             <DockPanel LastChildFill="False">
                 <TextBlock DockPanel.Dock="Left" Style="{StaticResource PlangCaptionStyle}"
-                           Text="{Binding RowCount, StringFormat='{}{0} 个 Key'}"/>
+                           Text="{Binding RowCount, StringFormat='{}{0} keys'}"/>
                 <TextBlock DockPanel.Dock="Left" Style="{StaticResource PlangCaptionStyle}" Margin="10,0,0,0"
-                           Text="{Binding EnabledLanguageCount, StringFormat='{}{0} 种语言启用'}"/>
-                <TextBlock DockPanel.Dock="Left" Style="{StaticResource PlangCaptionStyle}" Margin="10,0,0,0" Text="● 未保存"
+                           Text="{Binding EnabledLanguageCount, StringFormat='{}{0} languages enabled'}"/>
+                <TextBlock DockPanel.Dock="Left" Style="{StaticResource PlangCaptionStyle}" Margin="10,0,0,0" Text="● Unsaved"
                            Visibility="{Binding IsDirty, Converter={StaticResource boolToVis}}"/>
                 <TextBlock DockPanel.Dock="Right" Style="{StaticResource PlangCaptionStyle}" Text="{Binding StatusMessage}"
                            TextTrimming="CharacterEllipsis"/>
@@ -428,14 +428,14 @@
                       HorizontalAlignment="Center"
                       Stroke="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowTextBrushKey}}"
                       StrokeThickness="1" Opacity="0.5" Data="{x:Static icons:PuiIconCatalog.Fallback}"/>
-                <TextBlock Text="PLang 本地化编辑器" FontSize="18" FontWeight="SemiBold"
+                <TextBlock Text="PLang Localization Editor" FontSize="18" FontWeight="SemiBold"
                            HorizontalAlignment="Center" Margin="0,0,0,6"
                            Foreground="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-                <TextBlock Text="新建一个 .plang，或者打开已有的继续编辑" Style="{StaticResource PlangCaptionStyle}"
+                <TextBlock Text="Create a new .plang, or open an existing one to keep editing" Style="{StaticResource PlangCaptionStyle}"
                            HorizontalAlignment="Center" Margin="0,0,0,22"/>
-                <Button Content="新建" Width="200" Height="34" Style="{StaticResource PlangDialogButtonStyle}" IsDefault="True" Click="New_Click"/>
+                <Button Content="New" Width="200" Height="34" Style="{StaticResource PlangDialogButtonStyle}" IsDefault="True" Click="New_Click"/>
                 <Control Height="8"/>
-                <Button Content="打开现有" Width="200" Height="34" Style="{StaticResource PlangDialogButtonStyle}" Click="Open_Click"/>
+                <Button Content="Open existing" Width="200" Height="34" Style="{StaticResource PlangDialogButtonStyle}" Click="Open_Click"/>
             </StackPanel>
         </Grid>
     </Grid>

@@ -2,7 +2,7 @@
                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                         xmlns:platformui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
-                        Title="编辑这一行" Width="620" Height="620" MinWidth="440" MinHeight="360"
+                        Title="Edit this row" Width="620" Height="620" MinWidth="440" MinHeight="360"
                         WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
                         Background="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowBackgroundBrushKey}}">
     <platformui:DialogWindow.Resources>
@@ -25,13 +25,13 @@
                    TextTrimming="CharacterEllipsis" HorizontalAlignment="Left"/>
 
         <StackPanel Grid.Row="1" Margin="0,12,0,0">
-            <TextBlock Text="Key（全局唯一）" Style="{StaticResource PlangFieldLabelStyle}"/>
+            <TextBlock Text="Key (globally unique)" Style="{StaticResource PlangFieldLabelStyle}"/>
             <TextBox x:Name="KeyBox" Style="{StaticResource PlangKeyTextBoxStyle}" TextChanged="KeyBox_TextChanged"/>
             <TextBlock x:Name="KeyError" Margin="1,5,0,0" FontSize="11" TextWrapping="Wrap"
                        HorizontalAlignment="Left" Visibility="Collapsed"
                        Foreground="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowValidationErrorTextBrushKey}}"/>
 
-            <TextBlock Text="说明（只给写代码的人看，会进生成代码的注释）" Style="{StaticResource PlangFieldLabelStyle}" Margin="0,12,0,4"/>
+            <TextBlock Text="Description (for developers only; goes into the generated code's comments)" Style="{StaticResource PlangFieldLabelStyle}" Margin="0,12,0,4"/>
             <TextBox x:Name="CommentBox" Style="{StaticResource PlangTextBoxStyle}"/>
         </StackPanel>
 
@@ -39,7 +39,7 @@
         <ScrollViewer Grid.Row="2" Margin="0,14,-8,0" Padding="0,0,8,0"
                       VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
-                <TextBlock Text="中性值（没有匹配到玩家当前语言时的兜底文案）" Style="{StaticResource PlangFieldLabelStyle}"/>
+                <TextBlock Text="Neutral value (the fallback when nothing matches the player's language)" Style="{StaticResource PlangFieldLabelStyle}"/>
                 <TextBox x:Name="NeutralBox" Style="{StaticResource PlangTextBoxStyle}"
                          MinHeight="60" AcceptsReturn="True" TextWrapping="Wrap"
                          VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top"/>
@@ -69,10 +69,10 @@
 
         <DockPanel Grid.Row="3" Margin="0,14,0,0" LastChildFill="False">
             <TextBlock DockPanel.Dock="Left" Style="{StaticResource PlangCaptionStyle}"
-                       Text="每个框里回车就是换行，原样保存"/>
-            <Button DockPanel.Dock="Right" Content="取消" Style="{StaticResource PlangDialogButtonStyle}" IsCancel="True"/>
+                       Text="Enter inside a box is a line break, saved verbatim"/>
+            <Button DockPanel.Dock="Right" Content="Cancel" Style="{StaticResource PlangDialogButtonStyle}" IsCancel="True"/>
             <!-- 各文案框都是 AcceptsReturn，回车会被它们自己吃掉当换行，所以设成默认按钮不会误触发。 -->
-            <Button DockPanel.Dock="Right" x:Name="OkButton" Content="确定" Style="{StaticResource PlangDialogButtonStyle}"
+            <Button DockPanel.Dock="Right" x:Name="OkButton" Content="OK" Style="{StaticResource PlangDialogButtonStyle}"
                     IsDefault="True" Margin="0,0,8,0" Click="Ok_Click"/>
         </DockPanel>
     </Grid>

@@ -54,9 +54,9 @@ namespace PolarisTools.Pui.PuiVisualEditor
 
         public string DisplayLabel => TriggerType switch
         {
-            PuiStateTriggerType.ButtonClick => string.IsNullOrEmpty(ButtonName) ? "（未选择按钮）" : $"{ButtonName} 点击",
-            PuiStateTriggerType.Cancel => "取消 / ESC",
-            PuiStateTriggerType.CustomEvent => string.IsNullOrEmpty(EventKey) ? "（未命名事件）" : $"自定义事件：{EventKey}",
+            PuiStateTriggerType.ButtonClick => string.IsNullOrEmpty(ButtonName) ? "(no button selected)" : $"{ButtonName} click",
+            PuiStateTriggerType.Cancel => "Cancel / ESC",
+            PuiStateTriggerType.CustomEvent => string.IsNullOrEmpty(EventKey) ? "(unnamed event)" : $"Custom event: {EventKey}",
             _ => "?",
         };
     }

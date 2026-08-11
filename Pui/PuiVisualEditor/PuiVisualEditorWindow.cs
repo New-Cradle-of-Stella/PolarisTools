@@ -8,7 +8,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
     {
         public PuiVisualEditorWindow() : base(null)
         {
-            this.Caption = "PUI 可视化编辑器";
+            this.Caption = "PUI Visual Editor";
             this.Content = new PuiVisualEditorControl(isToolWindowHost: true);
         }
 

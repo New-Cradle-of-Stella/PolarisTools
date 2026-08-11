@@ -72,8 +72,8 @@ namespace PolarisTools.Pui.PuiVisualEditor
             ThreadHelper.ThrowIfNotOnUIThread();
             var dlg = new OpenFileDialog
             {
-                Title = "打开 PUI 文件",
-                Filter = "PUI File (*.pui)|*.pui|所有文件 (*.*)|*.*",
+                Title = "Open PUI file",
+                Filter = "PUI File (*.pui)|*.pui|All files (*.*)|*.*",
                 DefaultExt = ".pui",
                 CheckFileExists = true,
                 Multiselect = false
@@ -144,7 +144,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"保存失败：{ex.Message}", "PUI 编辑器", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Save failed: {ex.Message}", "PUI Editor", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -164,7 +164,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
             {
                 if (string.IsNullOrEmpty(ViewModel.FilePath))
                 {
-                    MessageBox.Show("请先保存 .pui 文件，才能热重载。", "PUI 编辑器", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Save the .pui file before hot reloading.", "PUI Editor", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -180,16 +180,16 @@ namespace PolarisTools.Pui.PuiVisualEditor
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"当前布局解析失败，未发送：{ex.Message}", "PUI 编辑器", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"The current layout failed to parse and was not sent: {ex.Message}", "PUI Editor", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
                 (bool ok, string error) = await PuiHotReloadClient.SendAsync(puiName, emitter.Commands, TimeSpan.FromSeconds(3)).ConfigureAwait(true);
 
                 if (ok)
-                    MessageBox.Show($"「{puiName}」已热重载。", "PUI 编辑器", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"\"{puiName}\" was hot reloaded.", "PUI Editor", MessageBoxButton.OK, MessageBoxImage.Information);
                 else
-                    MessageBox.Show($"热重载失败：{error}", "PUI 编辑器", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Hot reload failed: {error}", "PUI Editor", MessageBoxButton.OK, MessageBoxImage.Error);
             }).FileAndForget("PolarisTools/HotReload");
 #pragma warning restore VSSDK007
         }
@@ -220,7 +220,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
 
             if (string.IsNullOrEmpty(ViewModel.FilePath))
             {
-                MessageBox.Show("请先保存 .pui 文件，才能创建回调方法。", "PUI 编辑器", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Save the .pui file before creating callback methods.", "PUI Editor", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -256,7 +256,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"创建回调方法失败：{ex.Message}", "PUI 编辑器", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Failed to create the callback method: {ex.Message}", "PUI Editor", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -375,7 +375,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
         {
             if (!ViewModel.TryParseXmlSource())
             {
-                MessageBox.Show("XML 解析失败，请检查格式。", "PUI 编辑器", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("XML parsing failed; please check the format.", "PUI Editor", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -403,7 +403,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
 
             var dlg = new SaveFileDialog
             {
-                Title = "保存 PUI 文件",
+                Title = "Save PUI file",
                 Filter = "PUI File (*.pui)|*.pui",
                 DefaultExt = ".pui",
                 InitialDirectory = TryGetCurrentProjectDirectory(),

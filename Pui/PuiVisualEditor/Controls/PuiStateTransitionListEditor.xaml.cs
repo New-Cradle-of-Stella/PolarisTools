@@ -45,9 +45,9 @@ namespace PolarisTools.Pui.PuiVisualEditor.Controls
 
         public IReadOnlyList<TriggerTypeOption> TriggerTypeOptions { get; } = new[]
         {
-            new TriggerTypeOption(PuiStateTriggerType.ButtonClick, "按钮点击"),
-            new TriggerTypeOption(PuiStateTriggerType.Cancel, "取消 / ESC"),
-            new TriggerTypeOption(PuiStateTriggerType.CustomEvent, "自定义事件"),
+            new TriggerTypeOption(PuiStateTriggerType.ButtonClick, "Button click"),
+            new TriggerTypeOption(PuiStateTriggerType.Cancel, "Cancel / ESC"),
+            new TriggerTypeOption(PuiStateTriggerType.CustomEvent, "Custom event"),
         };
 
         /// <summary>当前窗口内所有 Button 元素的 Name，供 ButtonName 下拉框选择；随 Children 增删

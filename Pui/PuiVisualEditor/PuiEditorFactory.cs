@@ -48,7 +48,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
 
             ppunkDocView = Marshal.GetIUnknownForObject(pane);
             ppunkDocData = Marshal.GetIUnknownForObject(pane);
-            pbstrEditorCaption = " [PUI 可视化编辑器]";
+            pbstrEditorCaption = " [PUI Visual Editor]";
 
             return VSConstants.S_OK;
         }

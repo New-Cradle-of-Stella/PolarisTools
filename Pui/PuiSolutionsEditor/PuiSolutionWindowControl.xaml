@@ -30,7 +30,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="200"/>
         </Grid.ColumnDefinitions>
-        <TextBlock Text="PUI 图编辑器" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
+        <TextBlock Text="PUI Graph Editor" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
         <nodify:NodifyEditor x:Name="Editor" Grid.Row="1"
              ItemsSource="{Binding Nodes}"
              Connections="{Binding Connections}"
@@ -44,7 +44,7 @@
                 <ContextMenu x:Name="EditorEmptyContextMenu">
                     <!-- 子项完全由代码后置在打开时动态填充：扫描本 .puisln 同目录下的 .pui 文件，
                          每个文件对应一项，点击即创建绑定到它的 PUI 状态节点。见 BuildAddNodeSubMenu。 -->
-                    <MenuItem x:Name="AddNodeSubMenu" Header="添加 PUI 状态节点"/>
+                    <MenuItem x:Name="AddNodeSubMenu" Header="Add PUI state node"/>
                 </ContextMenu>
             </nodify:NodifyEditor.ContextMenu>
             <nodify:NodifyEditor.PendingConnectionTemplate>
@@ -64,9 +64,9 @@
                              Output="{Binding Output}">
                         <nodify:Node.ContextMenu>
                             <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                                <MenuItem Header="刷新（重新读取 .pui）" Click="RefreshNode_Click"
+                                <MenuItem Header="Refresh (re-read the .pui)" Click="RefreshNode_Click"
                                   Visibility="{Binding Type, Converter={StaticResource nodeTypeMenuConverter}, ConverterParameter=IsPuiState}"/>
-                                <MenuItem Header="删除节点" Click="DeleteNode_Click"
+                                <MenuItem Header="Delete node" Click="DeleteNode_Click"
                                   IsEnabled="{Binding Type, Converter={StaticResource nodeTypeMenuConverter}, ConverterParameter=IsDeletable}"/>
                             </ContextMenu>
                         </nodify:Node.ContextMenu>
@@ -138,7 +138,7 @@
                                DisconnectCommand="{Binding DataContext.RemoveConnectionCommand, RelativeSource={RelativeSource AncestorType=nodify:NodifyEditor}}">
                         <nodify:LineConnection.ContextMenu>
                             <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                                <MenuItem Header="删除连线"
+                                <MenuItem Header="Delete edge"
                               Command="{Binding DataContext.RemoveConnectionCommand, Source={x:Reference Editor}}"
                               CommandParameter="{Binding}"
                               IsEnabled="{Binding Removable}" />
@@ -169,7 +169,7 @@
         </nodify:NodifyEditor>
         <Grid Grid.Row="2">
             <TextBlock x:Name="StatusText" VerticalAlignment="Center" Margin="8,0" Foreground="#FFAAAAAA"/>
-            <Button HorizontalAlignment="Right" Content="保存" Click="Save_Click"/>
+            <Button HorizontalAlignment="Right" Content="Save" Click="Save_Click"/>
         </Grid>
         <!-- 启动覆盖层：仅 Tool Window 入口显示；新建/打开/直接打开文件后隐藏 -->
         <Grid x:Name="StartOverlay"
@@ -177,12 +177,12 @@
               Grid.RowSpan="3"
               Panel.ZIndex="100" d:IsHidden="True">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Button Content="新建"
+                <Button Content="New"
                         Width="160"
                         Height="36"
                         Click="New_Click"/>
                 <Control Height="20"/>
-                <Button Content="打开现有"
+                <Button Content="Open existing"
                         Width="160"
                         Height="36"
                         Click="Open_Click"/>

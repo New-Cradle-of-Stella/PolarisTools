@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace PolarisTools.Pui.PuiVisualEditor
 {
@@ -51,23 +52,30 @@ namespace PolarisTools.Pui.PuiVisualEditor
         }
 
         private PlangKeyCatalog _plangCatalog;
+        private PolarisResourceCatalog _resourceCatalog;
 
         private static void OnSourceFilePathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-            => ((PuiPreviewRenderer)d).RebindPlangCatalog(e.NewValue as string);
+            => ((PuiPreviewRenderer)d).RebindCatalogs(e.NewValue as string);
 
-        private void RebindPlangCatalog(string puiFilePath)
+        private void RebindCatalogs(string puiFilePath)
         {
             if (_plangCatalog != null)
-                _plangCatalog.Changed -= PlangCatalog_Changed;
+                _plangCatalog.Changed -= Catalog_Changed;
+            if (_resourceCatalog != null)
+                _resourceCatalog.Changed -= Catalog_Changed;
 
-            _plangCatalog = string.IsNullOrEmpty(puiFilePath) ? null : PlangKeyCatalog.ForPuiFile(puiFilePath);
+            bool hasPath = !string.IsNullOrEmpty(puiFilePath);
+            _plangCatalog = hasPath ? PlangKeyCatalog.ForPuiFile(puiFilePath) : null;
+            _resourceCatalog = hasPath ? PolarisResourceCatalog.ForPuiFile(puiFilePath) : null;
 
             if (_plangCatalog != null)
-                _plangCatalog.Changed += PlangCatalog_Changed;
+                _plangCatalog.Changed += Catalog_Changed;
+            if (_resourceCatalog != null)
+                _resourceCatalog.Changed += Catalog_Changed;
         }
 
         // FileSystemWatcher 的回调跑在线程池线程上，不能直接碰 WPF 对象。
-        private void PlangCatalog_Changed(object sender, EventArgs e)
+        private void Catalog_Changed(object sender, EventArgs e)
             => Dispatcher.BeginInvoke(new Action(InvalidateVisual));
 
         /// <summary>
@@ -197,7 +205,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
                     RenderColorCell(dc, elem, rect, isSelected);
                     break;
                 case PuiElementType.Image:
-                    RenderLabeledBox(dc, elem, rect, isSelected, Brushes.Gray, Brushes.White, "🖼 " + elem.Name);
+                    RenderImage(dc, elem, rect, isSelected);
                     break;
             }
         }
@@ -341,6 +349,88 @@ namespace PolarisTools.Pui.PuiVisualEditor
             DrawBorderedRect(dc, fill, new Pen(isSelected ? Brushes.Cyan : Brushes.DimGray, isSelected ? 2 : 1), rect);
             var text = string.IsNullOrEmpty(label) ? elem.Name : label;
             DrawTextCentered(dc, text, rect, textBrush, 11);
+        }
+
+        /// <summary>
+        /// Image：选了资源字段、而且编辑器在磁盘上找得到对应图片文件时画出真实图片；否则退回
+        /// 示意方块，标注选的是哪个资源（或"未设置"）——一眼能区分"没选图"和"选了但文件没找到/
+        /// 解码失败"。
+        /// <para>
+        /// 绘制规则跟运行时 <c>Polaris.PUI.PuiImage.Assign</c> 一致，两边必须同时改：Uv 是
+        /// 0..1 的归一化值（原点左下，Unity 纹理坐标），先换算成纹理像素矩形裁出源图，再<b>等比</b>
+        /// 缩放到声明的 Width×Height 之内并居中（真机 <c>FillImageBlock</c> 只有一个 <c>scale</c>
+        /// 同时作用于两轴，做不到非等比拉伸），最后乘用户填的 <c>Scale</c>。
+        /// </para>
+        /// </summary>
+        private void RenderImage(DrawingContext dc, PuiElement elem, Rect rect, bool isSelected)
+        {
+            BitmapSource bitmap = ResolveImageBitmap(elem.ImageResource);
+            if (bitmap == null)
+            {
+                string label = string.IsNullOrEmpty(elem.ImageResource)
+                    ? "🖼 " + elem.Name
+                    : "🖼 " + ShortReference(elem.ImageResource);
+                RenderLabeledBox(dc, elem, rect, isSelected, Brushes.Gray, Brushes.White, label);
+                return;
+            }
+
+            BitmapSource source = CropToUv(bitmap, elem);
+            double scale = elem.Scale > 0 ? elem.Scale : 1;
+            double fit = Math.Min(rect.Width / source.PixelWidth, rect.Height / source.PixelHeight) * scale;
+            double destW = source.PixelWidth * fit;
+            double destH = source.PixelHeight * fit;
+            var destRect = new Rect(
+                rect.X + (rect.Width - destW) / 2,
+                rect.Y + (rect.Height - destH) / 2,
+                Math.Max(0, destW),
+                Math.Max(0, destH));
+
+            // Scale > 1 时真机会溢出占位框（只被窗口遮罩裁掉），这里同样不裁——裁掉反而会让
+            // 画布显示得比真机"更整齐"，掩盖了溢出这件事。
+            dc.DrawImage(source, destRect);
+
+            if (isSelected)
+                DrawBorderedRect(dc, null, new Pen(Brushes.Cyan, 2), rect);
+        }
+
+        /// <summary>
+        /// 按归一化 Uv 裁出源图的一块。Unity 纹理坐标原点在左下、WPF 位图原点在左上，所以纵向
+        /// 要翻一次。整张图（默认的 0,0,1,1）不构造 <see cref="CroppedBitmap"/>，省一次拷贝。
+        /// </summary>
+        private static BitmapSource CropToUv(BitmapSource bitmap, PuiElement elem)
+        {
+            int texW = bitmap.PixelWidth;
+            int texH = bitmap.PixelHeight;
+            double uvW = elem.UvW > 0 ? elem.UvW : 1;
+            double uvH = elem.UvH > 0 ? elem.UvH : 1;
+
+            int w = Clamp((int)Math.Round(uvW * texW), 1, texW);
+            int h = Clamp((int)Math.Round(uvH * texH), 1, texH);
+            int x = Clamp((int)Math.Round(elem.UvX * texW), 0, texW - w);
+            int yFromBottom = Clamp((int)Math.Round(elem.UvY * texH), 0, texH - h);
+            int y = texH - yFromBottom - h;
+
+            if (x == 0 && y == 0 && w == texW && h == texH)
+                return bitmap;
+
+            var cropped = new CroppedBitmap(bitmap, new Int32Rect(x, y, w, h));
+            cropped.Freeze();
+            return cropped;
+        }
+
+        private static int Clamp(int value, int min, int max)
+            => value < min ? min : (value > max ? max : value);
+
+        private BitmapSource ResolveImageBitmap(string reference)
+            => _resourceCatalog != null && _resourceCatalog.TryGet(reference, out PolarisImageResource resource)
+                ? resource.FullImage
+                : null;
+
+        // 画布上的占位标签只放"类名.字段名"，命名空间前缀在这么小的方块里放不下也没信息量。
+        private static string ShortReference(string reference)
+        {
+            string[] parts = reference.Split('.');
+            return parts.Length <= 2 ? reference : parts[parts.Length - 2] + "." + parts[parts.Length - 1];
         }
 
         // ButtonMulti/Checks/Radio 的外框（rect）已经是 PuiLineLayout.GetGridContainerSize 按真机

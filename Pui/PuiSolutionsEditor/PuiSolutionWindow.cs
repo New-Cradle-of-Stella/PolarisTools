@@ -31,7 +31,7 @@ namespace PolarisTools.Pui.PuiSolutions
         {
             Control?.LoadFromFile(path);
             if (!string.IsNullOrEmpty(path))
-                Caption = $"PUI Graph — {System.IO.Path.GetFileName(path)}";
+                Caption = $"PUI Graph - {System.IO.Path.GetFileName(path)}";
         }
     }
     

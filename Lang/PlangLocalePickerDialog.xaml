@@ -3,7 +3,7 @@
                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                         xmlns:platformui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
                         xmlns:icons="clr-namespace:PolarisTools.Pui.PuiVisualEditor.Controls"
-                        Title="添加语言" Width="520" SizeToContent="Height" ResizeMode="NoResize"
+                        Title="Add language" Width="520" SizeToContent="Height" ResizeMode="NoResize"
                         WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
                         Background="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowBackgroundBrushKey}}">
     <platformui:DialogWindow.Resources>
@@ -57,7 +57,7 @@
                                                    Visibility="{Binding NoteVisibility}"/>
                                     </StackPanel>
 
-                                    <TextBlock Grid.Column="3" Text="已添加" FontSize="10" Opacity="0.55" VerticalAlignment="Center"
+                                    <TextBlock Grid.Column="3" Text="Added" FontSize="10" Opacity="0.55" VerticalAlignment="Center"
                                                Visibility="{Binding AddedTagVisibility}"/>
                                 </Grid>
                             </Border>
@@ -83,10 +83,10 @@
     </platformui:DialogWindow.Resources>
 
     <StackPanel Margin="20,16,20,16">
-        <TextBlock Text="添加语言" Style="{StaticResource PlangDialogTitleStyle}"/>
+        <TextBlock Text="Add language" Style="{StaticResource PlangDialogTitleStyle}"/>
         <TextBlock Style="{StaticResource PlangCaptionStyle}" Margin="0,4,0,12" TextWrapping="Wrap"
                    HorizontalAlignment="Left"
-                   Text="下面是游戏自带的语言，点一下就选中，可以一次选多个。每选一个，表格里就多一列。"/>
+                   Text="Below are the languages shipped with the game. Click to select; you can select several at once. Each one adds a column to the grid."/>
 
         <Border Style="{StaticResource PlangCardStyle}" Padding="4">
             <ItemsControl x:Name="LocaleList" Focusable="False">
@@ -117,14 +117,14 @@
 
             <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Style="{StaticResource PlangCaptionStyle}" Margin="0,0,0,8"
                        HorizontalAlignment="Left" TextWrapping="Wrap"
-                       Text="上面没有的语言（玩家自己装的语言包）在这里手填一个代码，可选："/>
+                       Text="For a language not listed above (a player-installed language pack), type a code here (optional):"/>
 
-            <TextBlock Grid.Row="1" Grid.Column="0" Text="语言代码" Style="{StaticResource PlangFieldLabelStyle}"/>
-            <TextBlock Grid.Row="1" Grid.Column="2" Text="显示名（留空就用代码）" Style="{StaticResource PlangFieldLabelStyle}"/>
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Language code" Style="{StaticResource PlangFieldLabelStyle}"/>
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="Display name (blank uses the code)" Style="{StaticResource PlangFieldLabelStyle}"/>
 
             <Grid Grid.Row="2" Grid.Column="0">
                 <TextBox x:Name="CustomCodeBox" Style="{StaticResource PlangKeyTextBoxStyle}" TextChanged="CustomCode_TextChanged"/>
-                <TextBlock Text="例如 pt-br" FontFamily="Consolas">
+                <TextBlock Text="e.g. pt-br" FontFamily="Consolas">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource PlangWatermarkStyle}">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -145,9 +145,9 @@
                    Foreground="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowValidationErrorTextBrushKey}}"/>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-            <Button x:Name="OkButton" Content="添加" Style="{StaticResource PlangDialogButtonStyle}"
+            <Button x:Name="OkButton" Content="Add" Style="{StaticResource PlangDialogButtonStyle}"
                     IsDefault="True" IsEnabled="False" Margin="0,0,8,0" Click="Ok_Click"/>
-            <Button Content="取消" Style="{StaticResource PlangDialogButtonStyle}" IsCancel="True"/>
+            <Button Content="Cancel" Style="{StaticResource PlangDialogButtonStyle}" IsCancel="True"/>
         </StackPanel>
     </StackPanel>
 </platformui:DialogWindow>

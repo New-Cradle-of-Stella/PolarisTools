@@ -57,7 +57,7 @@ internal static class PuiCodeBehindSync
             return 1;
 
         var stub = new StringBuilder();
-        stub.Append("    // 自动追加的方法桩；可以直接在这里改成真正的逻辑。\n");
+        stub.Append("    // Auto-appended method stub; replace this with the real logic.\n");
         stub.Append("    public ").Append(handler.ReturnType).Append(' ').Append(handler.MethodName)
             .Append('(').Append(handler.Parameters).Append(")\n");
         stub.Append("    {\n");
@@ -127,7 +127,7 @@ internal static class PuiCodeBehindSync
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Polaris：设置 DependentUpon 失败：{ex}");
+            System.Diagnostics.Debug.WriteLine($"Polaris: failed to set DependentUpon: {ex}");
         }
     }
 }

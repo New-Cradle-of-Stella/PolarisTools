@@ -280,6 +280,7 @@ internal static class PuiTreeWalker
                     UvY = e.UvY,
                     UvW = e.UvW,
                     UvH = e.UvH,
+                    ImageResource = e.ImageResource,
                     ImageSource = e.ImageSource,
                 });
                 break;

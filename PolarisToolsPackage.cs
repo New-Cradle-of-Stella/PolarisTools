@@ -176,7 +176,7 @@ public sealed class PolarisToolsPackage : AsyncPackage
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine(
-                $"Polaris {binding.SourceExtension} 代码生成失败：{ex}");
+                $"Polaris {binding.SourceExtension} code generation failed: {ex}");
         }
     }
 
@@ -229,7 +229,7 @@ public sealed class PolarisToolsPackage : AsyncPackage
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine(
-                $"Polaris：隐藏生成的 {generatedExtension} 失败：{ex}");
+                $"Polaris: failed to hide the generated {generatedExtension}: {ex}");
         }
     }
 
@@ -256,7 +256,7 @@ public sealed class PolarisToolsPackage : AsyncPackage
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine(
-                $"Polaris：创建 .pui.cs 代码隐藏文件失败：{ex}");
+                $"Polaris: failed to create the .pui.cs code-behind file: {ex}");
         }
     }
 
@@ -271,13 +271,13 @@ public sealed class PolarisToolsPackage : AsyncPackage
                 return;
             }
             System.Diagnostics.Debug.WriteLine(
-                $"Polaris：无法将 ProjectItem 转换为 VSProjectItem，" +
-                $"无法执行 Custom Tool。文件：{projectItem.Name}");
+                $"Polaris: could not cast the ProjectItem to VSProjectItem, " +
+                $"so Custom Tool cannot run. File: {projectItem.Name}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine(
-                $"Polaris：执行 Run Custom Tool 失败：{ex}");
+                $"Polaris: failed to Run Custom Tool: {ex}");
         }
     }
 }

@@ -1,5 +1,3 @@
-using EnvDTE;
-using Microsoft.VisualStudio.Shell;
 using Polaris.Lang;
 using System;
 using System.Collections.Generic;
@@ -49,7 +47,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
         /// </summary>
         public static PlangKeyCatalog ForPuiFile(string puiFilePath)
         {
-            string root = ResolveRootDir(puiFilePath);
+            string root = PuiProjectLocator.ResolveProjectDir(puiFilePath);
             if (string.IsNullOrEmpty(root))
             {
                 return Empty;
@@ -90,52 +88,6 @@ namespace PolarisTools.Pui.PuiVisualEditor
         }
 
         /// <summary>
-        /// 项目根 = <c>.pui</c> 所属项目文件所在目录，走 DTE 的
-        /// <c>Solution.FindProjectItem</c> → <c>ContainingProject</c> 定位；拿不到（不在解决
-        /// 方案里、不在 UI 线程、DTE 不可用）就退回 <c>.pui</c> 自己所在的目录——总比什么都不查好。
-        /// </summary>
-        private static string ResolveRootDir(string puiFilePath)
-        {
-            if (string.IsNullOrEmpty(puiFilePath))
-            {
-                return null;
-            }
-
-            try
-            {
-                ThreadHelper.ThrowIfNotOnUIThread();
-
-                if (Package.GetGlobalService(typeof(DTE)) is DTE dte)
-                {
-                    ProjectItem item = dte.Solution?.FindProjectItem(puiFilePath);
-                    string projectPath = item?.ContainingProject?.FullName;
-                    if (!string.IsNullOrEmpty(projectPath))
-                    {
-                        string dir = Path.GetDirectoryName(projectPath);
-                        if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir))
-                        {
-                            return dir;
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                // 定位项目失败不该影响编辑体验，往下退回 .pui 自己的目录。
-            }
-
-            try
-            {
-                string dir = Path.GetDirectoryName(puiFilePath);
-                return !string.IsNullOrEmpty(dir) && Directory.Exists(dir) ? dir : null;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
         /// 递归扫描根目录下的 <c>.plang</c>（跟运行时 <c>LangLoader.LoadAll</c> 一样是
         /// 递归的），跳过 bin/obj。一个 key 只应该出现在一个文件里；撞了 key 保留先扫到的。
         /// </summary>
@@ -155,7 +107,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
 
             foreach (string file in files)
             {
-                if (IsBuildOutput(file))
+                if (PuiProjectLocator.IsBuildOutput(file))
                 {
                     continue;
                 }
@@ -185,13 +137,6 @@ namespace PolarisTools.Pui.PuiVisualEditor
                 // 单个文件坏了（XML 不合法、被独占占用）只跳过它，不影响其它文件。
                 // 预览查不到就显示 &键，作者一眼能看出来，不需要在这里弹框。
             }
-        }
-
-        private static bool IsBuildOutput(string path)
-        {
-            string p = path.Replace('/', '\\');
-            return p.IndexOf("\\bin\\", StringComparison.OrdinalIgnoreCase) >= 0
-                || p.IndexOf("\\obj\\", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         /// <summary>

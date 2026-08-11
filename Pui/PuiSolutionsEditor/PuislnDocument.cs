@@ -75,9 +75,9 @@ namespace PolarisTools.Pui.PuiSolutions
             PuislnDocument doc = string.IsNullOrWhiteSpace(json)
                 ? new PuislnDocument { Nodes = new(), Connections = new() }
                 : JsonSerializer.Deserialize<PuislnDocument>(json, Options)
-                    ?? throw new InvalidDataException("空的 .puisln 文件");
+                    ?? throw new InvalidDataException("Empty .puisln file");
             if (doc.Version < 2)
-                throw new InvalidDataException("旧版 .puisln 文件（使用了已废弃的节点类型）不再支持，请重新创建");
+                throw new InvalidDataException("Old .puisln files (using retired node types) are no longer supported; please recreate it");
             return doc;
         }
     }

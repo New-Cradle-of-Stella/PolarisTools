@@ -14,11 +14,11 @@ namespace PolarisTools.Pui.PuiSolutions.ViewModel.NodeTypes
     public class EntryDescriptor : NodeTypeDescriptorBase
     {
         public override NodeType Type => NodeType.Entry;
-        public override string Title => "入口";
+        public override string Title => "Entry";
 
         public override IReadOnlyList<ConnectorViewModel> CreateOutputs(object param) => new List<ConnectorViewModel>
         {
-            new() { Title = "初始状态", IsOutput = true }
+            new() { Title = "Initial state", IsOutput = true }
         };
     }
 
@@ -28,11 +28,11 @@ namespace PolarisTools.Pui.PuiSolutions.ViewModel.NodeTypes
     public class ExitDescriptor : NodeTypeDescriptorBase
     {
         public override NodeType Type => NodeType.Exit;
-        public override string Title => "出口";
+        public override string Title => "Exit";
 
         public override IReadOnlyList<ConnectorViewModel> CreateInputs() => new List<ConnectorViewModel>
         {
-            new() { Title = "退出" }
+            new() { Title = "Quit" }
         };
     }
 
@@ -45,11 +45,11 @@ namespace PolarisTools.Pui.PuiSolutions.ViewModel.NodeTypes
     public class PuiStateDescriptor : NodeTypeDescriptorBase
     {
         public override NodeType Type => NodeType.PuiState;
-        public override string Title => "PUI 状态";
+        public override string Title => "PUI state";
 
         public override IReadOnlyList<ConnectorViewModel> CreateInputs() => new List<ConnectorViewModel>
         {
-            new() { Title = "进入" }
+            new() { Title = "Enter" }
         };
 
         public override IReadOnlyList<ConnectorViewModel> CreateOutputs(object param)

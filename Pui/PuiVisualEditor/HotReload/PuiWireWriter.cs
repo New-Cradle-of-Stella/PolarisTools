@@ -255,6 +255,7 @@ internal static class PuiWireWriter
                     w.Write(p.UvW);
                     w.Write(p.UvH);
                     w.Write(p.ImageSource ?? "");
+                    w.Write(p.ImageResource ?? "");
                     break;
                 }
 

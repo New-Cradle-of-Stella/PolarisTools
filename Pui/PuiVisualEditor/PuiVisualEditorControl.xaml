@@ -401,33 +401,33 @@
                     </Setter>
                 </Style>
             </Menu.Resources>
-            <MenuItem Header="文件" Style="{StaticResource PuiTopLevelMenuItemStyle}">
-                <MenuItem Header="新建" Click="New_Click" Style="{StaticResource PuiSubmenuItemStyle}">
+            <MenuItem Header="File" Style="{StaticResource PuiTopLevelMenuItemStyle}">
+                <MenuItem Header="New" Click="New_Click" Style="{StaticResource PuiSubmenuItemStyle}">
                     <MenuItem.Icon>
                         <Path Data="{x:Static controls:PuiIconCatalog.Plus}" Style="{StaticResource IconPathStyle}"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="打开现有" Click="Open_Click" Style="{StaticResource PuiSubmenuItemStyle}"/>
+                <MenuItem Header="Open existing" Click="Open_Click" Style="{StaticResource PuiSubmenuItemStyle}"/>
                 <Separator/>
-                <MenuItem Header="保存" Click="Save_Click" Style="{StaticResource PuiSubmenuItemStyle}"
-                          ToolTip="保存 .pui 文件（作为工具窗口打开时，VS 的 Ctrl+S 不会保存到这里，要用这一项）">
+                <MenuItem Header="Save" Click="Save_Click" Style="{StaticResource PuiSubmenuItemStyle}"
+                          ToolTip="Save the .pui file (when opened as a tool window, VS's Ctrl+S does not save here -- use this item)">
                     <MenuItem.Icon>
                         <Path Data="{x:Static controls:PuiIconCatalog.Save}" Style="{StaticResource IconPathStyle}"/>
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
-            <MenuItem Header="编辑" Style="{StaticResource PuiTopLevelMenuItemStyle}">
-                <MenuItem Header="撤销" Command="{Binding UndoCommand}" InputGestureText="Ctrl+Z" Style="{StaticResource PuiSubmenuItemStyle}"/>
-                <MenuItem Header="重做" Command="{Binding RedoCommand}" InputGestureText="Ctrl+Y" Style="{StaticResource PuiSubmenuItemStyle}"/>
+            <MenuItem Header="Edit" Style="{StaticResource PuiTopLevelMenuItemStyle}">
+                <MenuItem Header="Undo" Command="{Binding UndoCommand}" InputGestureText="Ctrl+Z" Style="{StaticResource PuiSubmenuItemStyle}"/>
+                <MenuItem Header="Redo" Command="{Binding RedoCommand}" InputGestureText="Ctrl+Y" Style="{StaticResource PuiSubmenuItemStyle}"/>
             </MenuItem>
-            <MenuItem Header="运行" Style="{StaticResource PuiTopLevelMenuItemStyle}">
-                <MenuItem Header="热重载" Click="HotReload_Click" Style="{StaticResource PuiSubmenuItemStyle}"
-                          ToolTip="把当前布局推送给正在运行的游戏（需要目标插件启用 PUIHotFixEnabled）">
+            <MenuItem Header="Run" Style="{StaticResource PuiTopLevelMenuItemStyle}">
+                <MenuItem Header="Hot reload" Click="HotReload_Click" Style="{StaticResource PuiSubmenuItemStyle}"
+                          ToolTip="Push the current layout to the running game (the target plugin must enable PUIHotFixEnabled)">
                     <MenuItem.Icon>
                         <Path Data="{x:Static controls:PuiIconCatalog.HotReload}" Style="{StaticResource IconPathStyle}"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="应用源代码更改" Click="ApplySource_Click" Style="{StaticResource PuiSubmenuItemStyle}"/>
+                <MenuItem Header="Apply source changes" Click="ApplySource_Click" Style="{StaticResource PuiSubmenuItemStyle}"/>
             </MenuItem>
         </Menu>
 
@@ -449,7 +449,7 @@
         <Border Grid.Column="0" Grid.RowSpan="3" BorderBrush="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowBorderBrushKey}}" BorderThickness="0,0,1,0">
             <DockPanel>
                 <Border DockPanel.Dock="Top" Style="{StaticResource PanelHeaderBorder}">
-                    <TextBlock Text="工具箱" Style="{StaticResource PanelHeaderTitle}"/>
+                    <TextBlock Text="Toolbox" Style="{StaticResource PanelHeaderTitle}"/>
                 </Border>
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding ToolboxGroups}" Margin="4">
@@ -486,7 +486,7 @@
         <Border Grid.Column="2" Grid.Row="0" BorderBrush="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowBorderBrushKey}}" BorderThickness="0,0,0,0">
             <DockPanel>
                 <Border DockPanel.Dock="Top" Style="{StaticResource PanelHeaderBorder}">
-                    <TextBlock Text="预览" Style="{StaticResource PanelHeaderTitle}"/>
+                    <TextBlock Text="Preview" Style="{StaticResource PanelHeaderTitle}"/>
                 </Border>
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="{StaticResource PreviewCanvasBackgroundBrush}">
                     <Canvas x:Name="PreviewCanvas" Width="{Binding RootElement.Width}" Height="{Binding RootElement.Height}"
@@ -564,14 +564,14 @@
         <Border Grid.Column="4" Grid.RowSpan="3" BorderBrush="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowBorderBrushKey}}" BorderThickness="0,0,0,0">
             <DockPanel>
                 <Border DockPanel.Dock="Top" Style="{StaticResource PanelHeaderBorder}">
-                    <TextBlock Text="属性 / 回调" Style="{StaticResource PanelHeaderTitle}"/>
+                    <TextBlock Text="Properties / Callbacks" Style="{StaticResource PanelHeaderTitle}"/>
                 </Border>
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="10,8,10,12">
                         <StackPanel Visibility="{Binding SelectedLine, Converter={StaticResource typeColorConverter}, ConverterParameter=NotNullVisible}">
-                            <TextBlock Text="行样式" Style="{StaticResource SectionHeading}"/>
+                            <TextBlock Text="Row style" Style="{StaticResource SectionHeading}"/>
                             <DockPanel Margin="0,0,0,6">
-                                <TextBlock Text="对齐方式" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
+                                <TextBlock Text="Alignment" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
                                 <ComboBox SelectedValue="{Binding SelectedLineAlign, UpdateSourceTrigger=PropertyChanged}"
                                           SelectedValuePath="Content">
                                     <ComboBoxItem Content="Left"/>
@@ -582,13 +582,13 @@
                         </StackPanel>
                         <StackPanel Visibility="{Binding SelectedLine, Converter={StaticResource typeColorConverter}, ConverterParameter=NullVisible}">
                         <StackPanel DataContext="{Binding SelectedElement}">
-                        <TextBlock Text="无选中元素" Style="{StaticResource EmptyStateHint}" Visibility="{Binding Converter={StaticResource typeColorConverter}, ConverterParameter=NullVisible}"/>
+                        <TextBlock Text="No element selected" Style="{StaticResource EmptyStateHint}" Visibility="{Binding Converter={StaticResource typeColorConverter}, ConverterParameter=NullVisible}"/>
                         <TabControl Visibility="{Binding Converter={StaticResource typeColorConverter}, ConverterParameter=NotNullVisible}"
                                     Background="Transparent" BorderThickness="0">
-                        <TabItem Header="属性">
+                        <TabItem Header="Properties">
                         <StackPanel Margin="0,10,0,0">
                             <DockPanel Margin="0,0,0,6">
-                                <TextBlock Text="类型" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
+                                <TextBlock Text="Type" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
                                 <TextBlock Text="{Binding ElementType}" VerticalAlignment="Center"
                                            Foreground="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowTextBrushKey}}"/>
                             </DockPanel>
@@ -623,7 +623,7 @@
                                 <Border Style="{StaticResource SectionChip}">
                                     <StackPanel Orientation="Horizontal">
                                         <Path Data="{x:Static controls:PuiIconCatalog.StateFlow}" Style="{StaticResource IconPathStyle}"/>
-                                        <TextBlock Text="状态连接点" Style="{StaticResource SectionChipText}"/>
+                                        <TextBlock Text="State connectors" Style="{StaticResource SectionChipText}"/>
                                     </StackPanel>
                                 </Border>
                                 <controls:PuiStateTransitionListEditor WindowElement="{Binding}" ListChanged="Property_Changed" Margin="0,0,0,6"/>
@@ -685,7 +685,7 @@
                                 </Border>
                                 <CheckBox Content="Vertical" IsChecked="{Binding Vertical}" Margin="0,0,0,6" Click="Property_Changed"/>
                                 <DockPanel Margin="0,0,0,6">
-                                    <TextBlock Text="Ratio（面板宽度比例）" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
+                                    <TextBlock Text="Ratio (panel width ratio)" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
                                     <controls:PuiNumberBox Value="{Binding Ratio, Mode=TwoWay}" Min="0" Max="1" Step="0.05" ValueChanged="Property_Changed"/>
                                 </DockPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
@@ -741,7 +741,7 @@
                                     </StackPanel>
                                 </Border>
                                 <TextBlock Text="Titles" Style="{StaticResource FieldLabel}" Margin="0,0,0,2"/>
-                                <controls:PuiStringListEditor ItemsText="{Binding Titles, Mode=TwoWay}" PrimaryCaption="选项"
+                                <controls:PuiStringListEditor ItemsText="{Binding Titles, Mode=TwoWay}" PrimaryCaption="Option"
                                                                ListChanged="Property_Changed" Margin="0,0,0,6"/>
                                 <DockPanel Margin="0,0,0,6">
                                     <TextBlock Text="Skin" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
@@ -819,7 +819,7 @@
                                     </StackPanel>
                                 </StackPanel>
                                 <DockPanel Margin="0,0,0,6">
-                                    <TextBlock Text="DefMask（位掩码）" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
+                                    <TextBlock Text="DefMask (bit mask)" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
                                     <controls:PuiNumberBox Value="{Binding DefMask, Mode=TwoWay}" IsInteger="True" ValueChanged="Property_Changed"/>
                                 </DockPanel>
                             </StackPanel>
@@ -861,7 +861,7 @@
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                     <StackPanel Margin="0,0,10,0">
-                                        <TextBlock Text="Def（默认索引）" Style="{StaticResource SubFieldCaption}"/>
+                                        <TextBlock Text="Def (default index)" Style="{StaticResource SubFieldCaption}"/>
                                         <controls:PuiNumberBox Value="{Binding Def, Mode=TwoWay}" IsInteger="True" Min="0" ValueChanged="Property_Changed"/>
                                     </StackPanel>
                                     <StackPanel>
@@ -871,7 +871,7 @@
                                 </StackPanel>
                                 <CheckBox Content="ValueReturnName" IsChecked="{Binding ValueReturnName}" Margin="0,4,0,0" Click="Property_Changed"/>
                                 <CheckBox Content="AllFunctionSame" IsChecked="{Binding AllFunctionSame}" Margin="0,4,0,0" Click="Property_Changed"/>
-                                <CheckBox Content="RowMode（单列滚动行）" IsChecked="{Binding RowMode}" Margin="0,4,0,0" Click="Property_Changed"/>
+                                <CheckBox Content="RowMode (single-column scrolling row)" IsChecked="{Binding RowMode}" Margin="0,4,0,0" Click="Property_Changed"/>
                             </StackPanel>
 
                             <!-- Slider：对应 DsnDataSlider -->
@@ -912,7 +912,7 @@
                                 </StackPanel>
                                 <CheckBox Content="SubmitHolding" IsChecked="{Binding SubmitHolding}" Margin="0,4,0,6" Click="Property_Changed"/>
                                 <DockPanel Margin="0,0,0,6">
-                                    <TextBlock Text="CheckboxMode（0/1/2）" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
+                                    <TextBlock Text="CheckboxMode (0/1/2)" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
                                     <controls:PuiNumberBox Value="{Binding CheckboxMode, Mode=TwoWay}" IsInteger="True" Min="0" Max="2" ValueChanged="Property_Changed"/>
                                 </DockPanel>
                                 <TextBlock Text="DescKeys" Style="{StaticResource FieldLabel}" Margin="0,0,0,2"/>
@@ -937,7 +937,7 @@
                                     <TextBox Text="{Binding Label, UpdateSourceTrigger=PropertyChanged}" TextChanged="Property_Changed"/>
                                 </DockPanel>
                                 <DockPanel Margin="0,0,0,6">
-                                    <TextBlock Text="初始值（Text）" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
+                                    <TextBlock Text="Initial value (Text)" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
                                     <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" TextChanged="Property_Changed"/>
                                 </DockPanel>
                                 <DockPanel Margin="0,0,0,6">
@@ -1048,7 +1048,7 @@
                                     <TextBox Text="{Binding SkinTitle, UpdateSourceTrigger=PropertyChanged}" TextChanged="Property_Changed"/>
                                 </DockPanel>
                                 <DockPanel Margin="0,0,0,6">
-                                    <TextBlock Text="Title（Text）" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
+                                    <TextBlock Text="Title (Text)" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
                                     <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" TextChanged="Property_Changed"/>
                                 </DockPanel>
                                 <CheckBox Content="OpenPrompt" IsChecked="{Binding OpenPrompt}" Margin="0,4,0,0" Click="Property_Changed"/>
@@ -1056,7 +1056,9 @@
                                 <CheckBox Content="UseAlpha" IsChecked="{Binding UseAlpha}" Margin="0,4,0,0" Click="Property_Changed"/>
                             </StackPanel>
 
-                            <!-- Image：对应 DsnDataImg（图像资源本身是运行时对象，目前没法在 PUI 里设置） -->
+                            <!-- Image：对应 DsnDataImg。图片来源是项目里那些 [PolarisResource] MImage
+                                 static 字段（PolarisRes 自动绑定已经把 MImage 填进去了），由资源选择器
+                                 列出来选，见 PolarisResourceCatalog / PuiResourcePicker。 -->
                             <StackPanel Visibility="{Binding ElementType, Converter={StaticResource typeColorConverter}, ConverterParameter=ShowImage}">
                                 <Border Style="{StaticResource SectionChip}">
                                     <StackPanel Orientation="Horizontal">
@@ -1064,6 +1066,15 @@
                                         <TextBlock Text="Image" Style="{StaticResource SectionChipText}"/>
                                     </StackPanel>
                                 </Border>
+                                <DockPanel Margin="0,0,0,6">
+                                    <TextBlock Text="Resource" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
+                                    <!-- SourceFilePath 绑的是 ViewModel.FilePath（这一段的 DataContext 是
+                                         SelectedElement，所以要顺着 UserControl 往上取）：选择器靠它定位
+                                         .pui 所属项目，才知道该扫哪个项目的资源字段。 -->
+                                    <controls:PuiResourcePicker SelectedReference="{Binding ImageResource, Mode=TwoWay}"
+                                                                SourceFilePath="{Binding DataContext.FilePath, RelativeSource={RelativeSource AncestorType=local:PuiVisualEditorControl}}"
+                                                                SelectedReferenceChanged="Property_Changed"/>
+                                </DockPanel>
                                 <DockPanel Margin="0,0,0,6">
                                     <TextBlock Text="Scale" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
                                     <controls:PuiNumberBox Value="{Binding Scale, Mode=TwoWay}" Min="0" ValueChanged="Property_Changed"/>
@@ -1089,8 +1100,8 @@
                                         <controls:PuiNumberBox Value="{Binding UvH, Mode=TwoWay}" ValueChanged="Property_Changed"/>
                                     </StackPanel>
                                 </StackPanel>
-                                <TextBlock Text="⚠ 图像资源（MI/PF）是运行时对象，目前没法在 PUI 里设置，不会显示任何图案。"
-                                           Foreground="{StaticResource DestructiveTextBrush}" FontSize="10" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                                <TextBlock Text="The image is scaled uniformly to fit Width x Height (Scale is a multiplier on top of that, and above 1 it overflows). Uv is normalized 0-1 with its origin at the bottom left. Only PolarisRes images (MImage) can be set here; PixelLiner character frames (PF) are not supported."
+                                           Style="{StaticResource EmptyStateHint}" FontSize="10" Margin="0,8,0,0"/>
                             </StackPanel>
 
                             <Button HorizontalContentAlignment="Left" Margin="0,18,0,0" Click="Delete_Click"
@@ -1098,14 +1109,14 @@
                                     Visibility="{Binding ElementType, Converter={StaticResource typeColorConverter}, ConverterParameter=CanDelete}">
                                 <StackPanel Orientation="Horizontal">
                                     <Path Data="{x:Static controls:PuiIconCatalog.Trash}" Style="{StaticResource IconPathStyle}" Stroke="{StaticResource DestructiveTextBrush}" Width="12" Height="12" Margin="0,0,5,0"/>
-                                    <TextBlock Text="删除"/>
+                                    <TextBlock Text="Delete"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
                         </TabItem>
-                        <TabItem Header="回调">
+                        <TabItem Header="Callbacks">
                         <StackPanel Margin="0,10,0,0">
-                            <TextBlock Text="该类型没有可注册的回调。" Style="{StaticResource EmptyStateHint}"
+                            <TextBlock Text="This type has no registrable callbacks." Style="{StaticResource EmptyStateHint}"
                                        Visibility="{Binding CallbackHooks, Converter={StaticResource typeColorConverter}, ConverterParameter=EmptyListVisible}"/>
                             <ItemsControl ItemsSource="{Binding CallbackHooks}">
                                 <ItemsControl.ItemTemplate>
@@ -1120,13 +1131,13 @@
                                                 </Grid.ColumnDefinitions>
                                                 <TextBox Grid.Column="0" Text="{Binding MethodName, UpdateSourceTrigger=PropertyChanged}" TextChanged="Property_Changed"/>
                                                 <Button Grid.Column="1" Width="26" Margin="4,0,0,0" Padding="0"
-                                                        ToolTip="添加回调（未绑定时自动生成方法名并创建代码）/ 定位已有回调方法"
+                                                        ToolTip="Add a callback (when unbound, generates a method name and creates the code) / go to the existing callback method"
                                                         Click="CreateHandler_Click" Tag="{Binding HookKind}">
                                                     <Path Data="{x:Static controls:PuiIconCatalog.Plus}" Style="{StaticResource IconPathStyle}" Width="11" Height="11"/>
                                                 </Button>
                                                 <Button Grid.Column="2" Width="26" Margin="4,0,0,0" Padding="0"
                                                         Style="{StaticResource DestructiveButton}"
-                                                        ToolTip="仅解除连接：清空这里的绑定，不会删除 code-behind 里的方法"
+                                                        ToolTip="Unbind only: clears the binding here without deleting the method in the code-behind"
                                                         Click="Unbind_Click" Tag="{Binding HookKind}"
                                                         Visibility="{Binding IsBound, Converter={StaticResource boolToVisConverter}}">
                                                     <Path Data="{x:Static controls:PuiIconCatalog.Unlink}" Style="{StaticResource IconPathStyle}" Stroke="{StaticResource DestructiveTextBrush}" Width="11" Height="11"/>
@@ -1153,7 +1164,7 @@
         <Border Grid.Column="2" Grid.Row="2" BorderBrush="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowBorderBrushKey}}" BorderThickness="0,0,0,0">
             <DockPanel>
                 <Border DockPanel.Dock="Top" Style="{StaticResource PanelHeaderBorder}">
-                    <TextBlock Text="源代码" Style="{StaticResource PanelHeaderTitle}"/>
+                    <TextBlock Text="Source" Style="{StaticResource PanelHeaderTitle}"/>
                 </Border>
                 <TextBox x:Name="SourceEditor"
                          Text="{Binding XmlSource, Mode=TwoWay}"
@@ -1173,14 +1184,14 @@
               Panel.ZIndex="100">
             <Rectangle Fill="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowBackgroundBrushKey}}" Opacity="0.92"/>
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="PUI 可视化编辑器" Style="{StaticResource SectionHeading}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                <TextBlock Text="新建一个 .pui，或者打开已有的继续编辑" Style="{StaticResource FieldLabel}" HorizontalAlignment="Center" Margin="0,0,0,16"/>
-                <Button Content="新建"
+                <TextBlock Text="PUI Visual Editor" Style="{StaticResource SectionHeading}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                <TextBlock Text="Create a new .pui, or open an existing one to keep editing" Style="{StaticResource FieldLabel}" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                <Button Content="New"
                         Width="160"
                         Height="36"
                         Click="New_Click"/>
                 <Control Height="12"/>
-                <Button Content="打开现有"
+                <Button Content="Open existing"
                         Width="160"
                         Height="36"
                         Click="Open_Click"/>

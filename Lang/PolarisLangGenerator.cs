@@ -105,7 +105,7 @@ public sealed class PolarisLangGenerator : IVsSingleFileGenerator
         {
             // 内容为空或暂时不是合法 XML（刚新建、还没保存过一次）时退回一个空类，
             // 不让整个生成过程失败——和 PolarisPuiGenerator.ParseRoot 的容错策略一致。
-            System.Diagnostics.Debug.WriteLine($"Polaris：解析 {inputFilePath} 失败，生成空类：{ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Polaris: failed to parse {inputFilePath}, generating an empty class: {ex.Message}");
             doc = new PlangDocument();
         }
 

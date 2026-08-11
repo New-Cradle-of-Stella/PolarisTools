@@ -62,7 +62,7 @@ namespace PolarisTools.Lang
             int idxLegacyType = header.IndexOf(ColLegacyType);
             if (idxKey < 0)
             {
-                throw new InvalidDataException("CSV 缺少 \"Key\" 列，无法导入。");
+                throw new InvalidDataException("The CSV has no \"Key\" column; cannot import.");
             }
 
             var langColumns = new List<(int Index, string Code)>();

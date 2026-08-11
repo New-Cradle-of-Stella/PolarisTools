@@ -330,9 +330,23 @@ namespace PolarisTools.Pui.PuiVisualEditor
         [ObservableProperty]
         private bool _useAlpha = true;
 
-        // Image：对应 DsnDataImg（addImg）。ImageSource 是 PolarisRes 挂载相对路径，运行时经
-        // PolarisResAPI.For(<当前程序集名>).Own.Image(...) 解析成 DsnDataImg.MI；只支持
-        // PolarisRes 原始图片（MI），不支持 PXLS 角色帧（PF）。
+        // Image：对应 DsnDataImg（addImg）。只支持 PolarisRes 原始图片（MI），不支持 PXLS
+        // 角色帧（PF）。图片来源有两种写法，ImageResource 优先：
+        //
+        //   ImageResource —— 属性面板里选出来的那个字段引用（形如 MyMod.Res.testImage），指向
+        //     模组自己那个打了 [PolarisResource] 的 static MImage 字段。PolarisRes 的
+        //     AutoBindScanner 启动时已经按 [PolarisResourceFolder] 挂载目录、把 MImage 填进
+        //     那个字段了，PUI 只是把它读出来，不需要再挂一次目录、也不会重复解码。编辑器能
+        //     顺着这个引用找到磁盘上的图片文件，所以画布上画的是真实图片（见 PolarisResourceCatalog）。
+        //
+        //   ImageSource —— 早于资源字段选择器存在的写法：PolarisRes 挂载相对路径，运行时经
+        //     PolarisResAPI.For(<当前程序集名>).Own.Image(...) 解析。它要求模组自己手动
+        //     MountDefault/Mount 过那个目录（自动绑定用的是按类分开的挂载表，不是 modId 那张
+        //     共享表），属性面板里也从来没露出过这个字段，只可能是手写 XML 填的——因此保留读写
+        //     与生成能力，不再作为推荐路径。
+        [ObservableProperty]
+        private string _imageResource = "";
+
         [ObservableProperty]
         private string _imageSource = "";
 
@@ -413,7 +427,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
                     Height = 32;
                     Name = "ButtonMulti1";
                     Skin = "normal";
-                    Titles = "选项1;选项2";
+                    Titles = "Option1;Option2";
                     break;
                 case PuiElementType.Checks:
                     Width = 140;
@@ -475,7 +489,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
             switch (ElementType)
             {
                 case PuiElementType.Window:
-                    Add("OnBuildCompleted", "OnBuildCompleted（构建完成）", nameof(OnBuildCompleted),
+                    Add("OnBuildCompleted", "OnBuildCompleted (build finished)", nameof(OnBuildCompleted),
                         e => e.OnBuildCompleted, (e, v) => e.OnBuildCompleted = v);
                     break;
 
@@ -483,22 +497,22 @@ namespace PolarisTools.Pui.PuiVisualEditor
                 case PuiElementType.ButtonMulti:
                 case PuiElementType.Checks:
                 case PuiElementType.NumCounter:
-                    Add("OnClick", "OnClick（点击）", nameof(OnClick), e => e.OnClick, (e, v) => e.OnClick = v);
+                    Add("OnClick", "OnClick (click)", nameof(OnClick), e => e.OnClick, (e, v) => e.OnClick = v);
                     break;
 
                 case PuiElementType.Radio:
                 case PuiElementType.Slider:
-                    Add("OnClick", "OnClick（点击）", nameof(OnClick), e => e.OnClick, (e, v) => e.OnClick = v);
-                    Add("OnChanged", "OnChanged（变化）", nameof(OnChanged), e => e.OnChanged, (e, v) => e.OnChanged = v);
+                    Add("OnClick", "OnClick (click)", nameof(OnClick), e => e.OnClick, (e, v) => e.OnClick = v);
+                    Add("OnChanged", "OnChanged (changed)", nameof(OnChanged), e => e.OnChanged, (e, v) => e.OnChanged = v);
                     break;
 
                 case PuiElementType.Input:
-                    Add("OnChanged", "OnChanged（内容变化）", nameof(OnChanged), e => e.OnChanged, (e, v) => e.OnChanged = v);
-                    Add("OnChangedDelay", "OnChangedDelay（延迟变化）", nameof(OnChangedDelay), e => e.OnChangedDelay, (e, v) => e.OnChangedDelay = v);
+                    Add("OnChanged", "OnChanged (content changed)", nameof(OnChanged), e => e.OnChanged, (e, v) => e.OnChanged = v);
+                    Add("OnChangedDelay", "OnChangedDelay (delayed change)", nameof(OnChangedDelay), e => e.OnChangedDelay, (e, v) => e.OnChangedDelay = v);
                     break;
 
                 case PuiElementType.ColorCell:
-                    Add("OnColorChanged", "OnColorChanged（颜色变化）", nameof(OnColorPromptDone), e => e.OnColorPromptDone, (e, v) => e.OnColorPromptDone = v);
+                    Add("OnColorChanged", "OnColorChanged (color changed)", nameof(OnColorPromptDone), e => e.OnColorPromptDone, (e, v) => e.OnColorPromptDone = v);
                     break;
             }
 
@@ -673,6 +687,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
                     if (!string.IsNullOrEmpty(OnColorPromptDone)) elem.SetAttributeValue("OnColorChanged", OnColorPromptDone);
                     break;
                 case PuiElementType.Image:
+                    if (!string.IsNullOrEmpty(ImageResource)) elem.SetAttributeValue("ImageResource", ImageResource);
                     if (!string.IsNullOrEmpty(ImageSource)) elem.SetAttributeValue("ImageSource", ImageSource);
                     if (Scale != 1) elem.SetAttributeValue("Scale", Scale);
                     if (!StencilLessEqual) elem.SetAttributeValue("StencilLessEqual", StencilLessEqual);
@@ -855,6 +870,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
                     e.OnColorPromptDone = (string)elem.Attribute("OnColorChanged") ?? "";
                     break;
                 case PuiElementType.Image:
+                    e.ImageResource = (string)elem.Attribute("ImageResource") ?? "";
                     e.ImageSource = (string)elem.Attribute("ImageSource") ?? "";
                     e.Scale = (double?)elem.Attribute("Scale") ?? e.Scale;
                     e.StencilLessEqual = (bool?)elem.Attribute("StencilLessEqual") ?? e.StencilLessEqual;

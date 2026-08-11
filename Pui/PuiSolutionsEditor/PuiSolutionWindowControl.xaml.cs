@@ -83,7 +83,7 @@ namespace PolarisTools.Pui.PuiSolutions
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"加载失败：\n{ex.Message}", "PUI Manager",
+                MessageBox.Show($"Load failed:\n{ex.Message}", "PUI Manager",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -114,7 +114,7 @@ namespace PolarisTools.Pui.PuiSolutions
 
             if (string.IsNullOrEmpty(ViewModel.FilePath))
             {
-                AddNodeSubMenu.Items.Add(new MenuItem { Header = "请先保存 .puisln 文件后再添加 PUI 状态节点", IsEnabled = false });
+                AddNodeSubMenu.Items.Add(new MenuItem { Header = "Save the .puisln file before adding PUI state nodes", IsEnabled = false });
                 return;
             }
 
@@ -122,7 +122,7 @@ namespace PolarisTools.Pui.PuiSolutions
             string[] puiFiles = Directory.Exists(dir) ? Directory.GetFiles(dir, "*.pui") : Array.Empty<string>();
             if (puiFiles.Length == 0)
             {
-                AddNodeSubMenu.Items.Add(new MenuItem { Header = "（此目录下没有找到 .pui 文件）", IsEnabled = false });
+                AddNodeSubMenu.Items.Add(new MenuItem { Header = "(no .pui files found in this directory)", IsEnabled = false });
                 return;
             }
 
@@ -145,7 +145,7 @@ namespace PolarisTools.Pui.PuiSolutions
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"读取 .pui 失败：\n{ex.Message}", "PUI Manager",
+                MessageBox.Show($"Failed to read .pui:\n{ex.Message}", "PUI Manager",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -161,7 +161,7 @@ namespace PolarisTools.Pui.PuiSolutions
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"刷新失败：\n{ex.Message}", "PUI Manager",
+                MessageBox.Show($"Refresh failed:\n{ex.Message}", "PUI Manager",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -246,8 +246,8 @@ namespace PolarisTools.Pui.PuiSolutions
 
             var dlg = new OpenFileDialog
             {
-                Title = "打开 PUI 解决方案图",
-                Filter = "PUI Solution (*.puisln)|*.puisln|所有文件 (*.*)|*.*",
+                Title = "Open PUI solution graph",
+                Filter = "PUI Solution (*.puisln)|*.puisln|All files (*.*)|*.*",
                 DefaultExt = ".puisln",
                 CheckFileExists = true,
                 Multiselect = false,
@@ -273,7 +273,7 @@ namespace PolarisTools.Pui.PuiSolutions
 
                 var dlg = new SaveFileDialog
                 {
-                    Title = "保存 PUI 解决方案图",
+                    Title = "Save PUI solution graph",
                     Filter = "PUI Solution (*.puisln)|*.puisln",
                     DefaultExt = ".puisln",
                     AddExtension = true,
@@ -284,12 +284,12 @@ namespace PolarisTools.Pui.PuiSolutions
                     return;
 
                 ViewModel.SaveToFile(dlg.FileName);
-                MessageBox.Show($"已保存：\n{dlg.FileName}", "PUI Manager",
+                MessageBox.Show($"Saved:\n{dlg.FileName}", "PUI Manager",
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"保存失败：\n{ex.Message}", "PUI Manager",
+                MessageBox.Show($"Save failed:\n{ex.Message}", "PUI Manager",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

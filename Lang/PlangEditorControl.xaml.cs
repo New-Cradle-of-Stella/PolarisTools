@@ -66,8 +66,8 @@ namespace PolarisTools.Lang
         {
             var dialog = new SaveFileDialog
             {
-                Title = "新建 PLang 本地化文件",
-                Filter = "PLang File (*.plang)|*.plang|所有文件 (*.*)|*.*",
+                Title = "New PLang localization file",
+                Filter = "PLang File (*.plang)|*.plang|All files (*.*)|*.*",
                 DefaultExt = ".plang",
                 FileName = "NewLangFile.plang",
                 OverwritePrompt = true,
@@ -87,7 +87,7 @@ namespace PolarisTools.Lang
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"新建失败：{ex.Message}", "PLang 编辑器", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Create failed: {ex.Message}", "PLang Editor", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -95,8 +95,8 @@ namespace PolarisTools.Lang
         {
             var dialog = new OpenFileDialog
             {
-                Title = "打开 PLang 本地化文件",
-                Filter = "PLang File (*.plang)|*.plang|所有文件 (*.*)|*.*",
+                Title = "Open PLang localization file",
+                Filter = "PLang File (*.plang)|*.plang|All files (*.*)|*.*",
                 DefaultExt = ".plang",
                 CheckFileExists = true,
                 Multiselect = false,
@@ -111,7 +111,7 @@ namespace PolarisTools.Lang
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"打开失败：{ex.Message}", "PLang 编辑器", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Open failed: {ex.Message}", "PLang Editor", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -176,12 +176,12 @@ namespace PolarisTools.Lang
                 ThreadHelper.ThrowIfNotOnUIThread();
                 bool generated = PlangCodeGenTrigger.RunCustomTool(filePath);
                 ViewModel.StatusMessage = generated
-                    ? $"已保存并生成代码 · {stamp}"
-                    : $"已保存 · {stamp}（文件不在当前解决方案里，没有跑代码生成）";
+                    ? $"Saved and generated code - {stamp}"
+                    : $"Saved - {stamp} (the file is not in the current solution, so code generation did not run)";
             }
             catch (Exception ex)
             {
-                ViewModel.StatusMessage = $"已保存 · {stamp}，但代码生成失败：{ex.Message}";
+                ViewModel.StatusMessage = $"Saved - {stamp}, but code generation failed: {ex.Message}";
             }
         }
 
@@ -209,12 +209,12 @@ namespace PolarisTools.Lang
             List<PlangRowViewModel> selected = KeyGrid.SelectedItems.OfType<PlangRowViewModel>().ToList();
             if (selected.Count == 0)
             {
-                ViewModel.StatusMessage = "先在表格里选中要删的行";
+                ViewModel.StatusMessage = "Select the rows to delete in the grid first";
                 return;
             }
 
-            string what = selected.Count == 1 ? $"「{selected[0].Key}」" : $"这 {selected.Count} 个 Key";
-            if (MessageBox.Show($"删除 {what}？各语言已填的文案会一起删掉。", "PLang 编辑器",
+            string what = selected.Count == 1 ? $"\"{selected[0].Key}\"" : $"these {selected.Count} keys";
+            if (MessageBox.Show($"Delete {what}? The text already filled in for every language will be deleted too.", "PLang Editor",
                                 MessageBoxButton.OKCancel, MessageBoxImage.Warning) != MessageBoxResult.OK)
                 return;
 
@@ -229,7 +229,7 @@ namespace PolarisTools.Lang
 
             if (string.IsNullOrEmpty(filePath))
             {
-                ViewModel.StatusMessage = "还没有对应的文件，先「新建」一个 .plang";
+                ViewModel.StatusMessage = "There is no file yet -- create a .plang first";
                 return;
             }
 
@@ -239,7 +239,7 @@ namespace PolarisTools.Lang
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"保存失败：{ex.Message}", "PLang 编辑器", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Save failed: {ex.Message}", "PLang Editor", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -254,7 +254,7 @@ namespace PolarisTools.Lang
 
             if (KeyGrid.SelectedItem is not PlangRowViewModel row)
             {
-                ViewModel.StatusMessage = "先在表格里选中一行，再点「编辑这一行」";
+                ViewModel.StatusMessage = "Select a row in the grid first, then click \"Edit this row\"";
                 return;
             }
 
@@ -269,8 +269,8 @@ namespace PolarisTools.Lang
             // 不要因为一个 Key 把用户刚敲的一堆译文丢掉。
             if (!string.Equals(row.Key, dialog.Key, StringComparison.Ordinal) && !ViewModel.RenameKey(row, dialog.Key))
             {
-                MessageBox.Show($"Key 没能改成「{dialog.Key}」（重名或为空），保留原来的「{row.Key}」，其它改动已保存。",
-                                "PLang 编辑器", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"The key could not be changed to \"{dialog.Key}\" (duplicate or empty); keeping the original \"{row.Key}\". Other changes were saved.",
+                                "PLang Editor", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
             row.Comment = dialog.Comment;
@@ -297,9 +297,9 @@ namespace PolarisTools.Lang
 
             ViewModel.StatusMessage = added switch
             {
-                0 => "没有新增语言",
-                1 => "新增了 1 种语言",
-                _ => $"新增了 {added} 种语言",
+                0 => "No languages added",
+                1 => "Added 1 language",
+                _ => $"Added {added} languages",
             };
         }
 
@@ -308,9 +308,9 @@ namespace PolarisTools.Lang
             if (sender is not FrameworkElement fe || fe.Tag is not PlangLanguageViewModel lang) return;
 
             if (MessageBox.Show(
-                    $"移除语言「{lang.Label}」（{lang.Code}）？\n\n表格里这一列会消失、不再参与代码生成，" +
-                    "但各行已经填好的文案会留在文件里——重新用同样的代码添加回来就能找回。",
-                    "PLang 编辑器", MessageBoxButton.OKCancel, MessageBoxImage.Warning) != MessageBoxResult.OK)
+                    $"Remove language \"{lang.Label}\" ({lang.Code})? This column disappears from the grid and no longer takes part in code generation, " +
+                    "but the text already filled in on each row stays in the file -- adding it back with the same code will bring it back.",
+                    "PLang Editor", MessageBoxButton.OKCancel, MessageBoxImage.Warning) != MessageBoxResult.OK)
                 return;
 
             ViewModel.RemoveLanguage(lang);
@@ -322,8 +322,8 @@ namespace PolarisTools.Lang
 
             var dialog = new SaveFileDialog
             {
-                Title = "导出为 CSV",
-                Filter = "CSV 文件 (*.csv)|*.csv|所有文件 (*.*)|*.*",
+                Title = "Export as CSV",
+                Filter = "CSV file (*.csv)|*.csv|All files (*.*)|*.*",
                 DefaultExt = ".csv",
                 FileName = string.IsNullOrEmpty(filePath) ? "plang.csv" : Path.GetFileNameWithoutExtension(filePath) + ".csv",
                 OverwritePrompt = true,
@@ -334,11 +334,11 @@ namespace PolarisTools.Lang
             try
             {
                 PlangCsvIo.Export(ViewModel, dialog.FileName);
-                ViewModel.StatusMessage = $"已导出到 {Path.GetFileName(dialog.FileName)}";
+                ViewModel.StatusMessage = $"Exported to {Path.GetFileName(dialog.FileName)}";
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"导出失败：{ex.Message}", "PLang 编辑器", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Export failed: {ex.Message}", "PLang Editor", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -346,8 +346,8 @@ namespace PolarisTools.Lang
         {
             var dialog = new OpenFileDialog
             {
-                Title = "从 CSV 导入",
-                Filter = "CSV 文件 (*.csv)|*.csv|所有文件 (*.*)|*.*",
+                Title = "Import from CSV",
+                Filter = "CSV file (*.csv)|*.csv|All files (*.*)|*.*",
                 DefaultExt = ".csv",
                 CheckFileExists = true,
                 Multiselect = false,
@@ -359,11 +359,11 @@ namespace PolarisTools.Lang
             {
                 KeyGrid.CommitEdit(DataGridEditingUnit.Row, true);
                 (int added, int updated, int newLanguages) = PlangCsvIo.Import(ViewModel, dialog.FileName);
-                ViewModel.StatusMessage = $"导入完成：新增 {added} 行，更新 {updated} 行，新增语言 {newLanguages} 个";
+                ViewModel.StatusMessage = $"Import finished: {added} rows added, {updated} rows updated, {newLanguages} languages added";
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"导入失败：{ex.Message}", "PLang 编辑器", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Import failed: {ex.Message}", "PLang Editor", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

@@ -17,7 +17,7 @@
 
   <Target Name="CheckPolarisDir" BeforeTargets="CoreCompile">
     <Error Condition="!Exists('$(PolarisDir)\Lang\PlangEntry.cs')"
-           Text="找不到 Polaris 的源码：$(PolarisDir)&#xA;Polaris 与 PolarisTools 约定并排 clone 在同一父目录下——本仓库链接了那边的几个源文件编译（.plang 内存模型、PUI 热重载线协议、&quot;&amp; 开头 = 本地化键&quot;的判定）。请把 Polaris 克隆到本仓库旁边，或设置环境变量 POLARIS_DIR 指向它。" />
+           Text="Cannot find the Polaris sources: $(PolarisDir)&#xA;Polaris and PolarisTools are expected to be cloned side by side under the same parent directory -- this repository links several source files from there into its own compilation (the .plang memory model, the PUI hot reload wire protocol, and the &quot;leading &amp; = localization key&quot; rule). Clone Polaris next to this repository, or set the POLARIS_DIR environment variable to point at it." />
   </Target>
 
 </Project>

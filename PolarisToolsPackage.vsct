@@ -25,19 +25,19 @@
 			<Button guid="guidPolarisToolsPackageCmdSet" id="OpenPuiVisualEditorCommandId" priority="0x0100" type="Button">
 				<Parent guid="guidPolarisToolsPackageCmdSet" id="PolarisMenuGroupId"/>
 				<Strings>
-					<ButtonText>PUI可视化编辑器</ButtonText>
+					<ButtonText>PUI Visual Editor</ButtonText>
 				</Strings>
 			</Button>
 			<Button guid="guidPolarisToolsPackageCmdSet" id="PuiSolutionWindowCommandId" priority="0x0200" type="Button">
 				<Parent guid="guidPolarisToolsPackageCmdSet" id="PolarisMenuGroupId"/>
 				<Strings>
-					<ButtonText>PUI解决方案可视化编辑器</ButtonText>
+					<ButtonText>PUI Solution Visual Editor</ButtonText>
 				</Strings>
 			</Button>
 			<Button guid="guidPolarisToolsPackageCmdSet" id="PlangEditorWindowCommandId" priority="0x0300" type="Button">
 				<Parent guid="guidPolarisToolsPackageCmdSet" id="PolarisMenuGroupId"/>
 				<Strings>
-					<ButtonText>PLang本地化工具窗口</ButtonText>
+					<ButtonText>PLang Localization Tool Window</ButtonText>
 				</Strings>
 			</Button>
 		</Buttons>

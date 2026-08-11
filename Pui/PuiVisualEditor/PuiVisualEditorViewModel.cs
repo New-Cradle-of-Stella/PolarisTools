@@ -42,42 +42,42 @@ namespace PolarisTools.Pui.PuiVisualEditor
         {
             new ToolboxGroup
             {
-                GroupName = "基本控件",
+                GroupName = "Basic controls",
                 Items = new ObservableCollection<ToolboxItem>
                 {
                     new ToolboxItem { Type = PuiElementType.Button, DisplayName = "Button" },
                     new ToolboxItem { Type = PuiElementType.Text, DisplayName = "Text" },
-                    new ToolboxItem { Type = PuiElementType.LineBreak, DisplayName = "换行" },
-                    new ToolboxItem { Type = PuiElementType.Separator, DisplayName = "分割线" }
+                    new ToolboxItem { Type = PuiElementType.LineBreak, DisplayName = "Line break" },
+                    new ToolboxItem { Type = PuiElementType.Separator, DisplayName = "Separator" }
                 }
             },
             new ToolboxGroup
             {
-                GroupName = "选择与列表",
+                GroupName = "Selection and lists",
                 Items = new ObservableCollection<ToolboxItem>
                 {
-                    new ToolboxItem { Type = PuiElementType.ButtonMulti, DisplayName = "多按钮" },
-                    new ToolboxItem { Type = PuiElementType.Checks, DisplayName = "复选框组" },
-                    new ToolboxItem { Type = PuiElementType.Radio, DisplayName = "单选组" }
+                    new ToolboxItem { Type = PuiElementType.ButtonMulti, DisplayName = "Multi-button" },
+                    new ToolboxItem { Type = PuiElementType.Checks, DisplayName = "Checkbox group" },
+                    new ToolboxItem { Type = PuiElementType.Radio, DisplayName = "Radio group" }
                 }
             },
             new ToolboxGroup
             {
-                GroupName = "数值与输入",
+                GroupName = "Numbers and input",
                 Items = new ObservableCollection<ToolboxItem>
                 {
-                    new ToolboxItem { Type = PuiElementType.Slider, DisplayName = "滑块" },
-                    new ToolboxItem { Type = PuiElementType.Input, DisplayName = "输入框" },
-                    new ToolboxItem { Type = PuiElementType.NumCounter, DisplayName = "数字计数器" }
+                    new ToolboxItem { Type = PuiElementType.Slider, DisplayName = "Slider" },
+                    new ToolboxItem { Type = PuiElementType.Input, DisplayName = "Input box" },
+                    new ToolboxItem { Type = PuiElementType.NumCounter, DisplayName = "Number counter" }
                 }
             },
             new ToolboxGroup
             {
-                GroupName = "图像与颜色",
+                GroupName = "Images and colors",
                 Items = new ObservableCollection<ToolboxItem>
                 {
-                    new ToolboxItem { Type = PuiElementType.Image, DisplayName = "图像" },
-                    new ToolboxItem { Type = PuiElementType.ColorCell, DisplayName = "颜色格" }
+                    new ToolboxItem { Type = PuiElementType.Image, DisplayName = "Image" },
+                    new ToolboxItem { Type = PuiElementType.ColorCell, DisplayName = "Color cell" }
                 }
             }
         };

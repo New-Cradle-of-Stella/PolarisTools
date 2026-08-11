@@ -47,7 +47,7 @@ namespace PolarisTools.Lang
 
             ppunkDocView = Marshal.GetIUnknownForObject(pane);
             ppunkDocData = Marshal.GetIUnknownForObject(pane);
-            pbstrEditorCaption = " [Polaris 本地化表格]";
+            pbstrEditorCaption = " [Polaris Localization Table]";
 
             return VSConstants.S_OK;
         }

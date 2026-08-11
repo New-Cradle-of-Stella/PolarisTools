@@ -48,7 +48,7 @@ namespace PolarisTools.Lang
             this.keyTakenByOthers = keyTakenByOthers;
             InitializeComponent();
 
-            TitleText.Text = string.IsNullOrEmpty(row.Key) ? "编辑这一行" : row.Key;
+            TitleText.Text = string.IsNullOrEmpty(row.Key) ? "Edit this row" : row.Key;
             KeyBox.Text = row.Key ?? "";
             CommentBox.Text = row.Comment ?? "";
             NeutralBox.Text = row.NeutralValue ?? "";
@@ -63,7 +63,7 @@ namespace PolarisTools.Lang
             int disabled = all.Count(l => !l.Enabled);
             if (disabled > 0)
             {
-                DisabledHint.Text = $"另外还有 {disabled} 门语言当前是停用的，没有列在这里——在语言条上重新启用就会出现。";
+                DisabledHint.Text = $"There are {disabled} more languages currently disabled and not listed here -- re-enable them on the language bar to make them appear.";
                 DisabledHint.Visibility = Visibility.Visible;
             }
 
@@ -90,11 +90,11 @@ namespace PolarisTools.Lang
             string error = null;
             if (key.Length == 0)
             {
-                error = "Key 不能为空。";
+                error = "Key cannot be empty.";
             }
             else if (keyTakenByOthers != null && keyTakenByOthers(key))
             {
-                error = $"「{key}」已经是另一行的 Key 了，换一个名字。";
+                error = $"\"{key}\" is already the key of another row; pick another name.";
             }
 
             KeyError.Text = error ?? "";

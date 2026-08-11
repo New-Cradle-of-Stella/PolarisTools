@@ -75,9 +75,9 @@ namespace PolarisTools.Lang
             if (custom.Length > 0)
             {
                 if (languageExists?.Invoke(custom) == true)
-                    error = $"语言代码「{custom}」已经在这份文件里了。";
+                    error = $"Language code \"{custom}\" is already in this file.";
                 else if (options.Any(o => !o.AlreadyAdded && o.IsSelected && string.Equals(o.Code, custom, StringComparison.OrdinalIgnoreCase)))
-                    error = $"语言代码「{custom}」上面已经选中了，不用再填一遍。";
+                    error = $"Language code \"{custom}\" is already selected above; no need to type it again.";
             }
 
             ErrorText.Text = error ?? "";
