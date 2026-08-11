@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net472</TargetFramework>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<UseWPF>true</UseWPF>
+		<ImplicitUsings>disable</ImplicitUsings>
+
+		<!-- VSIX -->
+		<VSSDKBuildToolsAutoSetup>true</VSSDKBuildToolsAutoSetup>
+		<GeneratePkgDefFile>true</GeneratePkgDefFile>
+		<UseCodebase>true</UseCodebase>
+		<IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
+		<IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
+		<IncludeDebugSymbolsInLocalVSIXDeployment>false</IncludeDebugSymbolsInLocalVSIXDeployment>
+		<CopyBuildOutputToOutputDirectory>true</CopyBuildOutputToOutputDirectory>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<CreateVsixContainer>true</CreateVsixContainer>
+		<DeployExtension>true</DeployExtension>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectCapability Include="CreateVsixContainer" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+		<PackageReference Include="gong-wpf-dragdrop" Version="4.0.0" />
+		<PackageReference Include="HandyControl" Version="3.5.1" />
+		<PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" ExcludeAssets="runtime" />
+		<PackageReference Include="Microsoft.VSSDK.BuildTools" Version="18.8.739" PrivateAssets="all" />
+		<PackageReference Include="EnvDTE" Version="17.*" />
+		<PackageReference Include="EnvDTE80" Version="17.*" />
+		<PackageReference Include="Nodify" Version="7.3.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="Microsoft.CSharp" />
+		<Reference Include="System.Design" />
+		<Reference Include="System.Windows.Forms" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<VSCTCompile Include="PolarisToolsPackage.vsct">
+			<ResourceName>Menus.ctmenu</ResourceName>
+			<Generator>VsctGenerator</Generator>
+		</VSCTCompile>
+	</ItemGroup>
+
+	<!--
+    从 Polaris（游戏侧运行时库，$(PolarisDir) 见 Directory.Build.props）链接过来编译的源文件。
+    共同点是"两侧必须字字一致，抄成两份就会悄悄写歪"，而且都刻意不引用 UnityEngine/XX/
+    BepInEx，net472 直接能编译：
+
+      - .plang 的内存模型与 XML 读写：编辑器存盘、游戏内解析是同一份逻辑。
+      - PUI 热重载线协议：opcode 数值、载荷字段与字段顺序因此天然一致，不必两份手抄
+        靠人眼比对。颜色用中立的 PuiColor，两侧各自转成本框架的颜色类型。
+      - "& 开头 = 本地化键"的判定：编译期展开（CSharpTextEmitter）、热重载运行期
+        （PuiText）、编辑器预览（PuiPreviewRenderer）三条路径共用同一份规则，
+        不会出现"预览按一套、真机按另一套"。真正查表的部分在游戏侧。
+  -->
+	<ItemGroup>
+		<Compile Include="$(PolarisDir)\Lang\PlangEntry.cs" Link="Lang\Shared\PlangEntry.cs" />
+		<Compile Include="$(PolarisDir)\Lang\PlangDocument.cs" Link="Lang\Shared\PlangDocument.cs" />
+		<Compile Include="$(PolarisDir)\PUI\HotReload\PuiWireProtocol.cs" Link="Pui\Shared\PuiWireProtocol.cs" />
+		<Compile Include="$(PolarisDir)\Localization\LocalizedString.cs" Link="Pui\Shared\LocalizedString.cs" />
+	</ItemGroup>
+
+	<!-- Item Templates -->
+	<ItemGroup>
+		<None Include="ItemTemplates\**\*.*" />
+		<VSIXSourceItem Include="ItemTemplates\Polaris\PuiFile\**\*.*">
+			<VSIXSubPath>ItemTemplates\Polaris\PuiFile</VSIXSubPath>
+		</VSIXSourceItem>
+		<VSIXSourceItem Include="ItemTemplates\Polaris\PuislnFile\**\*.*">
+			<VSIXSubPath>ItemTemplates\Polaris\PuislnFile</VSIXSubPath>
+		</VSIXSourceItem>
+		<VSIXSourceItem Include="ItemTemplates\Polaris\PlangFile\**\*.*">
+			<VSIXSubPath>ItemTemplates\Polaris\PlangFile</VSIXSubPath>
+		</VSIXSourceItem>
+	</ItemGroup>
+
+	<!--
+    关键：把 PackageReference 解析出来的 copy-local 程序集打进 VSIX。
+    你原来的 Content Include="$(OutputPath)Nodify.dll" 经常拿不到文件。
+  -->
+	<PropertyGroup>
+		<GetVsixSourceItemsDependsOn>$(GetVsixSourceItemsDependsOn);IncludePackageReferenceAssembliesInVsix</GetVsixSourceItemsDependsOn>
+	</PropertyGroup>
+
+	<Target Name="IncludePackageReferenceAssembliesInVsix" DependsOnTargets="ResolveReferences">
+		<!--
+      直接扫 $(OutputPath) 里实际产出的 dll，不再筛 @(ReferencePath) 的 CopyLocal 元数据。
+      已用诊断 target 核实过：CopyLocalLockFileAssemblies=true 让 SDK 正确把 System.Buffers/
+      System.Memory/System.Numerics.Vectors/System.Runtime.CompilerServices.Unsafe/
+      System.Threading.Tasks.Extensions/Microsoft.Bcl.AsyncInterfaces 这六个 BCL 兼容 shim
+      拷进了 bin\——但它们在 ResolveReferences 阶段的 @(ReferencePath) 上却是
+      CopyLocal=false（原因不明，大概率是 NuGet 资产去重逻辑对这批"传递依赖版本已被更高版本
+      覆盖"的程序集提前打了标）。按 CopyLocal 筛选的旧写法因此漏掉这六个，装到一台没有这些
+      shim 的干净 VS 上，第一次用到 CommunityToolkit.Mvvm/Nodify 就会 FileNotFoundException。
+      扫 $(OutputPath) 才是 ground truth：SDK 真的把它拷到那里了，就该带进 VSIX；
+      多带一份不会有坏处——宿主进程如果已经有同名程序集，CLR 绑定就近解析，不会撞车。
+    -->
+		<ItemGroup>
+			<VsixOutputDll Include="$(OutputPath)*.dll" Exclude="$(OutputPath)$(AssemblyName).dll" />
+			<!-- 只打第三方，不打 VS SDK/宿主进程自带的那堆（PresentationCore 等 WPF 核心程序集、
+           EnvDTE 系列、Microsoft.VisualStudio.*、Microsoft.Build.* 都由 devenv.exe 自己提供，
+           重复打包只会增大体积，个别情况下还可能因为版本不一致触发装配冲突）。 -->
+			<VSIXSourceItem Include="@(VsixOutputDll)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.VisualStudio')) == false
+                                 and $([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Build')) == false
+                                 and '%(Filename)' != 'EnvDTE'
+                                 and '%(Filename)' != 'EnvDTE80'
+                                 and '%(Filename)' != 'stdole'
+                                 and '%(Filename)' != 'Microsoft.CSharp'
+                                 and '%(Filename)' != 'PresentationCore'
+                                 and '%(Filename)' != 'PresentationFramework'
+                                 and '%(Filename)' != 'WindowsBase'
+                                 and '%(Filename)' != 'System.Xaml'">
+				<VSIXSubPath>.</VSIXSubPath>
+			</VSIXSourceItem>
+		</ItemGroup>
+	</Target>
+</Project>

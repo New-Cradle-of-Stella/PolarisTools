@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Polaris 本地化文件</Name>
+    <Description>Polaris 本地化键值对定义文件 (.plang)</Description>
+    <DefaultName>NewLangFile.plang</DefaultName>
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>100</SortOrder>
+    <TemplateGroupID>Polaris</TemplateGroupID>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem TargetFileName="$fileinputname$.plang" ReplaceParameters="false">Template.plang</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>PUI 界面文件</Name>
+    <Description>Polaris UI 界面定义文件 (.pui)</Description>
+    <DefaultName>NewPuiFile.pui</DefaultName>
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>100</SortOrder>
+    <TemplateGroupID>Polaris</TemplateGroupID>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem TargetFileName="$fileinputname$.pui" ReplaceParameters="false">Template.pui</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

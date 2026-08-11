@@ -1,0 +1,56 @@
+<platformui:DialogWindow x:Class="PolarisTools.Lang.PlangAddKeyDialog"
+                        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                        xmlns:platformui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
+                        Title="新增 Key" Width="520" SizeToContent="Height" ResizeMode="NoResize"
+                        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+                        Background="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowBackgroundBrushKey}}">
+    <platformui:DialogWindow.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/PolarisTools;component/Lang/PlangEditorTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </platformui:DialogWindow.Resources>
+
+    <StackPanel Margin="20,16,20,16">
+        <TextBlock Text="新增 Key" Style="{StaticResource PlangDialogTitleStyle}"/>
+        <TextBlock Style="{StaticResource PlangCaptionStyle}" Margin="0,4,0,16" TextWrapping="Wrap"
+                   HorizontalAlignment="Left"
+                   Text="一个 Key 就是一条文案。文案一律按可以换行的文本处理，不用先声明类型；下面填的内容之后在表格里随时能改。"/>
+
+        <TextBlock Text="Key（全局唯一，建议 &lt;模块名&gt;.&lt;名字&gt;）" Style="{StaticResource PlangFieldLabelStyle}"/>
+        <Grid>
+            <TextBox x:Name="KeyBox" Style="{StaticResource PlangKeyTextBoxStyle}" TextChanged="KeyBox_TextChanged"/>
+            <TextBlock Text="mymod.btn_ok" FontFamily="Consolas">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock" BasedOn="{StaticResource PlangWatermarkStyle}">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Text, ElementName=KeyBox}" Value="">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </Grid>
+        <TextBlock x:Name="KeyError" Margin="1,5,0,0" FontSize="11" TextWrapping="Wrap"
+                   HorizontalAlignment="Left" Visibility="Collapsed"
+                   Foreground="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowValidationErrorTextBrushKey}}"/>
+
+        <TextBlock Text="说明（可选，写进生成代码的 XML 注释，只给写代码的人看）" Style="{StaticResource PlangFieldLabelStyle}" Margin="0,14,0,4"/>
+        <TextBox x:Name="CommentBox" Style="{StaticResource PlangTextBoxStyle}"/>
+
+        <TextBlock Text="中性值（可选，没有匹配到玩家当前语言时显示的兜底文案，可以换行）" Style="{StaticResource PlangFieldLabelStyle}" Margin="0,14,0,4"/>
+        <TextBox x:Name="NeutralBox" Style="{StaticResource PlangTextBoxStyle}"
+                 Height="74" AcceptsReturn="True" TextWrapping="Wrap"
+                 VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+            <Button x:Name="OkButton" Content="添加" Style="{StaticResource PlangDialogButtonStyle}"
+                    IsDefault="True" IsEnabled="False" Margin="0,0,8,0" Click="Ok_Click"/>
+            <Button Content="取消" Style="{StaticResource PlangDialogButtonStyle}" IsCancel="True"/>
+        </StackPanel>
+    </StackPanel>
+</platformui:DialogWindow>

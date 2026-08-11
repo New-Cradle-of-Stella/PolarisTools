@@ -1,0 +1,102 @@
+<UserControl x:Class="PolarisTools.Pui.PuiVisualEditor.Controls.PuiStringListEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:platformui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
+             xmlns:controls="clr-namespace:PolarisTools.Pui.PuiVisualEditor.Controls"
+             xmlns:dd="urn:gong-wpf-dragdrop"
+             Focusable="False">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="boolToVis"/>
+        <Style x:Key="ColumnCaptionStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+            <Setter Property="Opacity" Value="0.55"/>
+            <Setter Property="FontSize" Value="10"/>
+        </Style>
+        <Style x:Key="RowIconButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <!-- 单列模式（Titles / DescKeys）：一个拖拽手柄 + 一个文本框 + 一个删除按钮。 -->
+        <DataTemplate x:Key="SingleRowTemplate" DataType="{x:Type controls:PuiStringListRow}">
+            <Grid Margin="0,2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Path Grid.Column="0" Data="{x:Static controls:PuiIconCatalog.DragHandle}" Width="10" Height="10"
+                      Stretch="Uniform" Fill="Transparent" Cursor="SizeAll"
+                      Stroke="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowTextBrushKey}}"
+                      StrokeThickness="1.2" Opacity="0.6" Margin="2,0,6,0" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" Text="{Binding Primary, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,4,0"/>
+                <Button Grid.Column="2" Style="{StaticResource RowIconButtonStyle}" Click="RemoveRow_Click" ToolTip="删除这一项">
+                    <Path Data="{x:Static controls:PuiIconCatalog.Close}" Width="9" Height="9" Stretch="Uniform" Fill="Transparent"
+                          Stroke="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowTextBrushKey}}" StrokeThickness="1.3"/>
+                </Button>
+            </Grid>
+        </DataTemplate>
+
+        <!-- 配对模式（Keys+Descs）：拖拽手柄 + 两个并排文本框（按下标一一对应）+ 删除按钮，
+             拖拽重排时两列一起动，不会出现 Key 和 Desc 错位。 -->
+        <DataTemplate x:Key="PairedRowTemplate" DataType="{x:Type controls:PuiStringListRow}">
+            <Grid Margin="0,2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Path Grid.Column="0" Data="{x:Static controls:PuiIconCatalog.DragHandle}" Width="10" Height="10"
+                      Stretch="Uniform" Fill="Transparent" Cursor="SizeAll"
+                      Stroke="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowTextBrushKey}}"
+                      StrokeThickness="1.2" Opacity="0.6" Margin="2,0,6,0" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" Text="{Binding Primary, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,4,0"/>
+                <TextBox Grid.Column="2" Text="{Binding Secondary, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,4,0"/>
+                <Button Grid.Column="3" Style="{StaticResource RowIconButtonStyle}" Click="RemoveRow_Click" ToolTip="删除这一项">
+                    <Path Data="{x:Static controls:PuiIconCatalog.Close}" Width="9" Height="9" Stretch="Uniform" Fill="Transparent"
+                          Stroke="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowTextBrushKey}}" StrokeThickness="1.3"/>
+                </Button>
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Border BorderBrush="{DynamicResource {x:Static platformui:CommonControlsColors.TextBoxBorderBrushKey}}"
+            BorderThickness="1" CornerRadius="3"
+            Background="{DynamicResource {x:Static platformui:CommonControlsColors.TextBoxBackgroundBrushKey}}">
+        <DockPanel Margin="6">
+            <!-- 配对模式下的两列小标题；单列模式没有 SecondaryCaption，第二列标题留空即可。 -->
+            <Grid DockPanel.Dock="Top" Margin="16,0,20,2" Visibility="{Binding IsPaired, RelativeSource={RelativeSource AncestorType=controls:PuiStringListEditor}, Converter={StaticResource boolToVis}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding PrimaryCaption, RelativeSource={RelativeSource AncestorType=controls:PuiStringListEditor}}" Style="{StaticResource ColumnCaptionStyle}"/>
+                <TextBlock Grid.Column="1" Text="{Binding SecondaryCaption, RelativeSource={RelativeSource AncestorType=controls:PuiStringListEditor}}" Style="{StaticResource ColumnCaptionStyle}"/>
+            </Grid>
+
+            <Button DockPanel.Dock="Bottom" Style="{StaticResource RowIconButtonStyle}" HorizontalContentAlignment="Left"
+                    Margin="0,2,0,0" Click="AddRow_Click">
+                <StackPanel Orientation="Horizontal">
+                    <Path Data="{x:Static controls:PuiIconCatalog.Plus}" Width="9" Height="9" Stretch="Uniform" Fill="Transparent"
+                          Stroke="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowTextBrushKey}}" StrokeThickness="1.3" Margin="0,0,4,0"/>
+                    <TextBlock Text="添加" FontSize="11" Opacity="0.8"/>
+                </StackPanel>
+            </Button>
+
+            <ListBox x:Name="RowsListBox" BorderThickness="0" Background="Transparent"
+                     ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     dd:DragDrop.IsDragSource="True" dd:DragDrop.IsDropTarget="True" dd:DragDrop.UseDefaultDragAdorner="True">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+        </DockPanel>
+    </Border>
+</UserControl>

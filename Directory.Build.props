@@ -1,0 +1,23 @@
+<Project>
+
+  <Import Project="Directory.Build.props.user" Condition="Exists('Directory.Build.props.user')" />
+
+  <PropertyGroup>
+    <!--
+      Polaris（运行时库）与 PolarisTools（本仓库，VS 扩展）约定并排 clone 在同一个父目录下。
+      PolarisTools 把 Polaris 里几个"两侧必须字字一致"的源文件链接进来编译，让编辑器和游戏内
+      运行时永远共用同一份代码（具体是哪几个文件、为什么，见 PolarisTools.csproj 里的注释）；
+      这里只是把那个相对路径提出来，好在缺失时给出能看懂的报错，而不是一串 CS2001。
+
+      优先级：Directory.Build.props.user > 环境变量 POLARIS_DIR > 兄弟目录默认值。
+    -->
+    <PolarisDir Condition="'$(PolarisDir)' == '' And '$(POLARIS_DIR)' != ''">$(POLARIS_DIR)</PolarisDir>
+    <PolarisDir Condition="'$(PolarisDir)' == ''">$(MSBuildThisFileDirectory)..\Polaris</PolarisDir>
+  </PropertyGroup>
+
+  <Target Name="CheckPolarisDir" BeforeTargets="CoreCompile">
+    <Error Condition="!Exists('$(PolarisDir)\Lang\PlangEntry.cs')"
+           Text="找不到 Polaris 的源码：$(PolarisDir)&#xA;Polaris 与 PolarisTools 约定并排 clone 在同一父目录下——本仓库链接了那边的几个源文件编译（.plang 内存模型、PUI 热重载线协议、&quot;&amp; 开头 = 本地化键&quot;的判定）。请把 Polaris 克隆到本仓库旁边，或设置环境变量 POLARIS_DIR 指向它。" />
+  </Target>
+
+</Project>

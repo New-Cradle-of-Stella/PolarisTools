@@ -1,0 +1,153 @@
+<platformui:DialogWindow x:Class="PolarisTools.Lang.PlangLocalePickerDialog"
+                        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                        xmlns:platformui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
+                        xmlns:icons="clr-namespace:PolarisTools.Pui.PuiVisualEditor.Controls"
+                        Title="添加语言" Width="520" SizeToContent="Height" ResizeMode="NoResize"
+                        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+                        Background="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowBackgroundBrushKey}}">
+    <platformui:DialogWindow.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/PolarisTools;component/Lang/PlangEditorTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- 一行 = 一个语言，整行就是个 ToggleButton：点哪儿都能选中／取消，不用去瞄那个小方框。
+                 已经加过的语言禁用掉并标"已添加"，比从列表里直接抹掉更好懂。 -->
+            <Style x:Key="LocaleCardStyle" TargetType="ToggleButton">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ToggleButton">
+                            <Border x:Name="Bd" CornerRadius="5" Margin="0,1" Padding="10,7" BorderThickness="1"
+                                    BorderBrush="Transparent" Background="{TemplateBinding Background}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="34"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- 选中标记：占位固定宽度，勾出现/消失时右边的内容不会跳。 -->
+                                    <Border Grid.Column="0" Width="16" Height="16" CornerRadius="8" Margin="0,0,10,0"
+                                            VerticalAlignment="Center" BorderThickness="1"
+                                            BorderBrush="{DynamicResource {x:Static platformui:CommonControlsColors.CheckBoxBorderBrushKey}}"
+                                            Background="{DynamicResource {x:Static platformui:CommonControlsColors.CheckBoxBackgroundBrushKey}}">
+                                        <Path x:Name="CheckGlyph" Visibility="Collapsed"
+                                              Data="{x:Static icons:PuiIconCatalog.Check}"
+                                              Width="9" Height="9" Stretch="Uniform" Fill="Transparent" StrokeThickness="1.8"
+                                              Stroke="{DynamicResource {x:Static platformui:CommonControlsColors.CheckBoxGlyphBrushKey}}"/>
+                                    </Border>
+
+                                    <!-- 游戏语言包里写的两字母简称，当徽标用。 -->
+                                    <TextBlock Grid.Column="1" Text="{Binding Badge}" FontFamily="Consolas" FontSize="11" FontWeight="Bold"
+                                               Opacity="0.75" VerticalAlignment="Center"/>
+
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Code}" FontFamily="Consolas" FontSize="11" Opacity="0.55"
+                                                       Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding Note}" FontSize="10" Opacity="0.5" TextWrapping="Wrap"
+                                                   Visibility="{Binding NoteVisibility}"/>
+                                    </StackPanel>
+
+                                    <TextBlock Grid.Column="3" Text="已添加" FontSize="10" Opacity="0.55" VerticalAlignment="Center"
+                                               Visibility="{Binding AddedTagVisibility}"/>
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource {x:Static platformui:EnvironmentColors.CommandBarMenuItemMouseOverBrushKey}}"/>
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="CheckGlyph" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource {x:Static platformui:EnvironmentColors.AccentPaleBrushKey}}"/>
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource {x:Static platformui:EnvironmentColors.AccentMediumBrushKey}}"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.45"/>
+                                    <Setter Property="Cursor" Value="Arrow"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </platformui:DialogWindow.Resources>
+
+    <StackPanel Margin="20,16,20,16">
+        <TextBlock Text="添加语言" Style="{StaticResource PlangDialogTitleStyle}"/>
+        <TextBlock Style="{StaticResource PlangCaptionStyle}" Margin="0,4,0,12" TextWrapping="Wrap"
+                   HorizontalAlignment="Left"
+                   Text="下面是游戏自带的语言，点一下就选中，可以一次选多个。每选一个，表格里就多一列。"/>
+
+        <Border Style="{StaticResource PlangCardStyle}" Padding="4">
+            <ItemsControl x:Name="LocaleList" Focusable="False">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ToggleButton Style="{StaticResource LocaleCardStyle}"
+                                      IsChecked="{Binding IsSelected}"
+                                      IsEnabled="{Binding IsSelectable}"
+                                      Click="LocaleCard_Click"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
+
+        <!-- 游戏的 family 集合不是固定枚举（扫 localization 目录动态建的），玩家装了第三方语言包
+             就会多出别的代码，所以留一个手填入口兜底。 -->
+        <Grid Margin="2,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Style="{StaticResource PlangCaptionStyle}" Margin="0,0,0,8"
+                       HorizontalAlignment="Left" TextWrapping="Wrap"
+                       Text="上面没有的语言（玩家自己装的语言包）在这里手填一个代码，可选："/>
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="语言代码" Style="{StaticResource PlangFieldLabelStyle}"/>
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="显示名（留空就用代码）" Style="{StaticResource PlangFieldLabelStyle}"/>
+
+            <Grid Grid.Row="2" Grid.Column="0">
+                <TextBox x:Name="CustomCodeBox" Style="{StaticResource PlangKeyTextBoxStyle}" TextChanged="CustomCode_TextChanged"/>
+                <TextBlock Text="例如 pt-br" FontFamily="Consolas">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource PlangWatermarkStyle}">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Text, ElementName=CustomCodeBox}" Value="">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+            <TextBox x:Name="CustomNameBox" Grid.Row="2" Grid.Column="2" Style="{StaticResource PlangTextBoxStyle}"/>
+        </Grid>
+
+        <TextBlock x:Name="ErrorText" Margin="1,10,0,0" FontSize="11" TextWrapping="Wrap"
+                   HorizontalAlignment="Left" Visibility="Collapsed"
+                   Foreground="{DynamicResource {x:Static platformui:EnvironmentColors.ToolWindowValidationErrorTextBrushKey}}"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button x:Name="OkButton" Content="添加" Style="{StaticResource PlangDialogButtonStyle}"
+                    IsDefault="True" IsEnabled="False" Margin="0,0,8,0" Click="Ok_Click"/>
+            <Button Content="取消" Style="{StaticResource PlangDialogButtonStyle}" IsCancel="True"/>
+        </StackPanel>
+    </StackPanel>
+</platformui:DialogWindow>

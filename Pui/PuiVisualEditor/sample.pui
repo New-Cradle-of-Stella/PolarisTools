@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window Name="MainWindow" Width="400" Height="300">
+  <Button Name="Button1" Width="100" Height="30" Text="点击我" />
+  <Text Name="Label1" Width="200" Height="24" Text="Hello PUI!" />
+  <!-- 开头打一个 & 表示这是本地化键，取值时走 XX.TX.Get("sample.greeting")；
+       想显示一个真的以 & 开头的文本就连打两个（&&），详见 Pui\Docs\PuiLocalization.md。 -->
+  <Text Name="Label2" Width="200" Height="24" Text="&amp;sample.greeting" />
+</Window>

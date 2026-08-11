@@ -1,0 +1,192 @@
+﻿<UserControl xmlns:Controls="clr-namespace:HandyControl.Controls;assembly=HandyControl"
+             x:Class="PolarisTools.Pui.PuiSolutions.PuiSolutionWindowControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:PolarisTools.Pui.PuiSolutions"
+             xmlns:vm="clr-namespace:PolarisTools.Pui.PuiSolutions.ViewModel"
+             xmlns:sln="clr-namespace:PolarisTools.Pui.PuiSolutions"
+             xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
+             xmlns:nodify="https://miroiu.github.io/nodify"
+             xmlns:dd="urn:gong-wpf-dragdrop"
+             Background="{DynamicResource {x:Static vsshell:VsBrushes.WindowKey}}"
+             Foreground="{DynamicResource {x:Static vsshell:VsBrushes.WindowTextKey}}"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="1000"
+             x:Name="MainWindow">
+    <UserControl.Resources>
+        <sln:NodeTypeContentConverter x:Key="t2cConverter"/>
+        <sln:ConnectionStrokeConverter x:Key="connectionStrokeConverter"/>
+        <sln:ConnectorBrushConverter x:Key="connectorBrushConverter"/>
+        <sln:NodeTypeMenuConverter x:Key="nodeTypeMenuConverter"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="200"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="PUI 图编辑器" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
+        <nodify:NodifyEditor x:Name="Editor" Grid.Row="1"
+             ItemsSource="{Binding Nodes}"
+             Connections="{Binding Connections}"
+             SelectedConnections="{Binding SelectedConnections}"
+             PendingConnection="{Binding PendingConnection}"
+             RemoveConnectionCommand="{Binding RemoveConnectionCommand}"
+             CanSelectMultipleConnections="True"
+             ContextMenuOpening="Editor_ContextMenuOpening"
+             PreviewKeyDown="Editor_PreviewKeyDown">
+            <nodify:NodifyEditor.ContextMenu>
+                <ContextMenu x:Name="EditorEmptyContextMenu">
+                    <!-- 子项完全由代码后置在打开时动态填充：扫描本 .puisln 同目录下的 .pui 文件，
+                         每个文件对应一项，点击即创建绑定到它的 PUI 状态节点。见 BuildAddNodeSubMenu。 -->
+                    <MenuItem x:Name="AddNodeSubMenu" Header="添加 PUI 状态节点"/>
+                </ContextMenu>
+            </nodify:NodifyEditor.ContextMenu>
+            <nodify:NodifyEditor.PendingConnectionTemplate>
+                <DataTemplate DataType="{x:Type vm:PendingConnectionViewModel}">
+                    <nodify:PendingConnection StartedCommand="{Binding StartCommand}"
+                                          CompletedCommand="{Binding FinishCommand}"
+                                          AllowOnlyConnectors="True"
+                                          EnablePreview="True"
+                                          EnableSnapping="True" />
+                </DataTemplate>
+            </nodify:NodifyEditor.PendingConnectionTemplate>
+
+            <nodify:NodifyEditor.ItemTemplate>
+                <DataTemplate DataType="{x:Type vm:NodeViewModel}">
+                    <nodify:Node Header="{Binding Title}"
+                             Input="{Binding Input}"
+                             Output="{Binding Output}">
+                        <nodify:Node.ContextMenu>
+                            <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                <MenuItem Header="刷新（重新读取 .pui）" Click="RefreshNode_Click"
+                                  Visibility="{Binding Type, Converter={StaticResource nodeTypeMenuConverter}, ConverterParameter=IsPuiState}"/>
+                                <MenuItem Header="删除节点" Click="DeleteNode_Click"
+                                  IsEnabled="{Binding Type, Converter={StaticResource nodeTypeMenuConverter}, ConverterParameter=IsDeletable}"/>
+                            </ContextMenu>
+                        </nodify:Node.ContextMenu>
+                        <nodify:Node.InputConnectorTemplate>
+                            <DataTemplate DataType="{x:Type vm:ConnectorViewModel}">
+                                <nodify:NodeInput Header="{Binding Title}"
+                          IsConnected="{Binding IsConnected}"
+                          Anchor="{Binding Anchor, Mode=OneWayToSource}">
+                                    <nodify:NodeInput.ConnectorTemplate>
+                                        <ControlTemplate>
+                                            <Ellipse Width="14" Height="14"
+                             StrokeThickness="2"
+                             Stroke="{Binding Converter={StaticResource connectorBrushConverter}}">
+                                                <Ellipse.Style>
+                                                    <Style TargetType="Ellipse">
+                                                        <!-- 默认空心：必须写在 Style 里，触发器才能覆盖 -->
+                                                        <Setter Property="Fill" Value="Transparent" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                                                <Setter Property="Fill"
+                                                Value="{Binding Converter={StaticResource connectorBrushConverter}}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Ellipse.Style>
+                                            </Ellipse>
+                                        </ControlTemplate>
+                                    </nodify:NodeInput.ConnectorTemplate>
+                                </nodify:NodeInput>
+                            </DataTemplate>
+                        </nodify:Node.InputConnectorTemplate>
+                        <nodify:Node.OutputConnectorTemplate>
+                            <DataTemplate DataType="{x:Type vm:ConnectorViewModel}">
+                                <nodify:NodeOutput Header="{Binding Title}"
+                           IsConnected="{Binding IsConnected}"
+                           Anchor="{Binding Anchor, Mode=OneWayToSource}">
+                                    <nodify:NodeOutput.ConnectorTemplate>
+                                        <ControlTemplate>
+                                            <Ellipse Width="14" Height="14"
+                             StrokeThickness="2"
+                             Stroke="{Binding Converter={StaticResource connectorBrushConverter}}">
+                                                <Ellipse.Style>
+                                                    <Style TargetType="Ellipse">
+                                                        <Setter Property="Fill" Value="Transparent" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                                                <Setter Property="Fill"
+                                                Value="{Binding Converter={StaticResource connectorBrushConverter}}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Ellipse.Style>
+                                            </Ellipse>
+                                        </ControlTemplate>
+                                    </nodify:NodeOutput.ConnectorTemplate>
+                                </nodify:NodeOutput>
+                            </DataTemplate>
+                        </nodify:Node.OutputConnectorTemplate>
+                        <ContentControl Content="{Binding Type, Converter={StaticResource t2cConverter}}"/>
+                    </nodify:Node>
+                </DataTemplate>
+            </nodify:NodifyEditor.ItemTemplate>
+            <nodify:NodifyEditor.ConnectionTemplate>
+                <DataTemplate DataType="{x:Type vm:ConnectionViewModel}">
+                    <nodify:LineConnection Source="{Binding Source.Anchor}"
+                               Target="{Binding Target.Anchor}"
+                               IsSelectable="True"
+                               Cursor="Hand"
+                               DisconnectCommand="{Binding DataContext.RemoveConnectionCommand, RelativeSource={RelativeSource AncestorType=nodify:NodifyEditor}}">
+                        <nodify:LineConnection.ContextMenu>
+                            <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                <MenuItem Header="删除连线"
+                              Command="{Binding DataContext.RemoveConnectionCommand, Source={x:Reference Editor}}"
+                              CommandParameter="{Binding}"
+                              IsEnabled="{Binding Removable}" />
+                            </ContextMenu>
+                        </nodify:LineConnection.ContextMenu>
+                        <nodify:LineConnection.Style>
+                            <Style TargetType="nodify:LineConnection">
+                                <Setter Property="Stroke"
+                            Value="{Binding Converter={StaticResource connectionStrokeConverter}}" />
+                                <Setter Property="StrokeThickness" Value="2" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Stroke" Value="Orange" />
+                                        <Setter Property="StrokeThickness" Value="3" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </nodify:LineConnection.Style>
+                    </nodify:LineConnection>
+                </DataTemplate>
+            </nodify:NodifyEditor.ConnectionTemplate>
+
+            <nodify:NodifyEditor.ItemContainerStyle>
+                <Style TargetType="{x:Type nodify:ItemContainer}">
+                    <Setter Property="Location" Value="{Binding Location, Mode=TwoWay}" />
+                </Style>
+            </nodify:NodifyEditor.ItemContainerStyle>
+        </nodify:NodifyEditor>
+        <Grid Grid.Row="2">
+            <TextBlock x:Name="StatusText" VerticalAlignment="Center" Margin="8,0" Foreground="#FFAAAAAA"/>
+            <Button HorizontalAlignment="Right" Content="保存" Click="Save_Click"/>
+        </Grid>
+        <!-- 启动覆盖层：仅 Tool Window 入口显示；新建/打开/直接打开文件后隐藏 -->
+        <Grid x:Name="StartOverlay"
+              Background="#80808080"
+              Grid.RowSpan="3"
+              Panel.ZIndex="100" d:IsHidden="True">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button Content="新建"
+                        Width="160"
+                        Height="36"
+                        Click="New_Click"/>
+                <Control Height="20"/>
+                <Button Content="打开现有"
+                        Width="160"
+                        Height="36"
+                        Click="Open_Click"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

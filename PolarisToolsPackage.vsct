@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<Extern href="stdidcmd.h"/>
+	<Extern href="vsshlids.h"/>
+
+	<Commands package="guidPolarisToolsPackage">
+		<Menus>
+			<!-- 顶部菜单栏新建 Polaris 菜单 -->
+			<Menu guid="guidPolarisToolsPackageCmdSet" id="PolarisMenu" priority="0x0700" type="Menu">
+				<Parent guid="guidSHLMainMenu" id="IDG_VS_MM_TOOLS"/>
+				<Strings>
+					<ButtonText>Polaris</ButtonText>
+					<CommandName>Polaris</CommandName>
+				</Strings>
+			</Menu>
+		</Menus>
+
+		<Groups>
+			<Group guid="guidPolarisToolsPackageCmdSet" id="PolarisMenuGroupId" priority="0x0100">
+				<Parent guid="guidPolarisToolsPackageCmdSet" id="PolarisMenu"/>
+			</Group>
+		</Groups>
+
+		<Buttons>
+			<Button guid="guidPolarisToolsPackageCmdSet" id="OpenPuiVisualEditorCommandId" priority="0x0100" type="Button">
+				<Parent guid="guidPolarisToolsPackageCmdSet" id="PolarisMenuGroupId"/>
+				<Strings>
+					<ButtonText>PUI可视化编辑器</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidPolarisToolsPackageCmdSet" id="PuiSolutionWindowCommandId" priority="0x0200" type="Button">
+				<Parent guid="guidPolarisToolsPackageCmdSet" id="PolarisMenuGroupId"/>
+				<Strings>
+					<ButtonText>PUI解决方案可视化编辑器</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidPolarisToolsPackageCmdSet" id="PlangEditorWindowCommandId" priority="0x0300" type="Button">
+				<Parent guid="guidPolarisToolsPackageCmdSet" id="PolarisMenuGroupId"/>
+				<Strings>
+					<ButtonText>PLang本地化工具窗口</ButtonText>
+				</Strings>
+			</Button>
+		</Buttons>
+	</Commands>
+
+	<Symbols>
+		<GuidSymbol name="guidPolarisToolsPackage" value="{b5bc69d9-3854-4b4a-97b1-9045e0a15d4d}" />
+
+		<GuidSymbol name="guidPolarisToolsPackageCmdSet" value="{1ba8fc7a-877c-43a5-8937-e1ed1b2dacea}">
+			<IDSymbol name="PolarisMenu" value="0x1000" />
+			<IDSymbol name="PolarisMenuGroupId" value="0x1010" />
+			<IDSymbol name="PuiSolutionWindowCommandId" value="0x0100" />
+			<IDSymbol name="OpenPuiVisualEditorCommandId" value="0x0101" />
+			<IDSymbol name="PlangEditorWindowCommandId" value="0x0102" />
+		</GuidSymbol>
+	</Symbols>
+</CommandTable>
