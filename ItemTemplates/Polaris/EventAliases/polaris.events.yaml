@@ -1,0 +1,146 @@
+# 这份默认配置是从游戏 0.29j 自带的 evt/__vp_person.dat + evt/__vp_talker_pos.dat 直接解析出来的，
+# 不是手写的猜测。
+#
+# positions 可以直接用：talker 就是游戏自己的站位码（L/R/C/CL/CR/...），@char 里写
+# pos:L、pos:CR 这些开箱即用，不用改。
+#
+# actors 的 raw 也是从 __vp_person.dat 抠出来的真实底层角色码（比如 Noel 对应的实际是单字母 "n"），
+# 可以直接用；但 poses 抠不出来——游戏的姿势不是一个固定的命名集合，是 PixelLiner 引擎按
+# "姿势/眼/嘴/..."分层组合出来的程序化代码，没有一份"姿势名字典"可以生成。下面每个角色只留了一条从
+# 游戏自带 726 个 .cmd 脚本里抓到的真实可用示例（键名 Sample），保证这份默认配置至少能编译过、能在
+# 游戏里正确显示；写自己的剧情时请把 Sample 换成/新增你真正要用的姿势——找真实姿势码最快的办法是去
+# 游戏安装目录 StreamingAssets/evt 底下按 raw 值搜 "PIC <raw> "，把搜到的那个长字符串抄过来用。
+actors:
+  Noel:
+    raw: n
+    poses:
+      Sample: a_1/a00L1R1__F1__f1__m1__b1__u0
+  Noel_Bass:
+    raw: nb
+    poses:
+      Sample: $_noelpic
+  Noel_Epbench:
+    raw: nb2
+    poses:
+      Sample: a_epbench/a00__F1__f1m1__e1__u1
+  Laevi:
+    raw: v
+    poses:
+      Sample: v/a11__F1__m1__b1_u0
+  Primula:
+    raw: p
+    poses:
+      Sample: p/a11__F1__f1__m1__b1_u0
+  Ixia:
+    raw: i
+    poses:
+      Sample: i/a00L1R1__F1__f1__m1__b1_u0
+  Nightingale:
+    raw: t
+    poses:
+      Sample: t/a0L1R1__F1__m1_u1__m1_b1
+  Tilde:
+    raw: d
+    poses:
+      Sample: d1/a0L1R1__F1__m1__b1_u1
+  Alma:
+    raw: l
+    poses:
+      Sample: l1/a0L1R1__F1__m1__b2_u2
+  NoelDad:
+    raw: f
+    poses:
+      Sample: dad1/a0L1RR__F1__m1__e1__u1
+  Mepha:
+    raw: g
+    poses:
+      Sample: p1/a0L1R1__F1__e4__u2
+  Ostrea:
+    raw: s
+    poses:
+      Sample: s/a0L1R1__F1__f1__m1__e1__u1
+  Walross:
+    raw: w
+    poses:
+      Sample: w/a0L1R1__F1__f1__m1__e1__u1
+  Barten:
+    raw: bt
+    poses:
+      Sample: P0/a0L1R1__F1__e1
+  Tigrina:
+    raw: so
+    poses:
+      Sample: so1/a0L1R1__F1__f1__m1__e1_u1
+  Alice:
+    raw: a
+    poses:
+      Sample: p1/a0L1R1__F1__e3__ua2
+  FirstHuman:
+    raw: fh
+    poses:
+      Sample: P0/a0L1R1__F1__m1
+
+positions:
+  L: { talker: L }
+  R: { talker: R }
+  C: { talker: C }
+  CL: { talker: CL }
+  CR: { talker: CR }
+  LL: { talker: LL }
+  RR: { talker: RR }
+  LLH: { talker: LLH }
+  RRH: { talker: RRH }
+  CCL: { talker: CCL }
+  CCR: { talker: CCR }
+  CLL: { talker: CLL }
+  CRR: { talker: CRR }
+  CCLCT: { talker: CCLCT }
+  CCLCB: { talker: CCLCB }
+  CCRCT: { talker: CCRCT }
+  CCRCB: { talker: CCRCB }
+  CLBB_ZCOS: { talker: CLBB_ZCOS }
+  T: { talker: T }
+  TT: { talker: TT }
+  B: { talker: B }
+  BB: { talker: BB }
+  CLT: { talker: CLT }
+  CRT: { talker: CRT }
+  CLB: { talker: CLB }
+  CRB: { talker: CRB }
+  RT: { talker: RT }
+  RTT: { talker: RTT }
+  LT: { talker: LT }
+  RB: { talker: RB }
+  LB: { talker: LB }
+  RRT: { talker: RRT }
+  LLT: { talker: LLT }
+  LTT: { talker: LTT }
+  RRB: { talker: RRB }
+  LLB: { talker: LLB }
+  CCT: { talker: CCT }
+  CCB: { talker: CCB }
+  CT: { talker: CT }
+  CB: { talker: CB }
+  CCLB: { talker: CCLB }
+  CCRB: { talker: CCRB }
+  CCRBB: { talker: CCRBB }
+  CCLT: { talker: CCLT }
+  CCLTT: { talker: CCLTT }
+  CCRT: { talker: CCRT }
+  CCRTT: { talker: CCRTT }
+  CRRTT: { talker: CRRTT }
+  CLLTT: { talker: CLLTT }
+  BBR: { talker: BBR }
+  BBL: { talker: BBL }
+  ROUT: { talker: ROUT }
+  RBOUT: { talker: RBOUT }
+  RTOUT: { talker: RTOUT }
+  BOUT: { talker: BOUT }
+  LOUT: { talker: LOUT }
+  LBOUT: { talker: LBOUT }
+  LTOUT: { talker: LTOUT }
+
+boxStyles: {}
+audio:
+  sfx: {}
+events: {}

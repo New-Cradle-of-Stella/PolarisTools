@@ -42,7 +42,8 @@ VSIX 项目**不能用 `dotnet build`**，要用 MSBuild：
 
 本仓库通过源码链接复用 Polaris 运行时库的实现（`.plang` 内存模型、PUI 热重载线协议、
 `&键` 本地化写法的判定），因此**要求 Polaris 与本仓库并排 clone 在同一个父目录下**；
-也可以用 `POLARIS_DIR` 环境变量指定位置。
+如果 Polaris 不在兄弟目录，可以在 `Directory.Build.props.user` 里覆盖 `PolarisDir` 属性指定位置
+（不再支持环境变量）。
 
 ### 相关项目
 
@@ -90,7 +91,8 @@ VSIX projects **cannot be built with `dotnet build`** — use MSBuild:
 
 This repo links source from the Polaris runtime library (the `.plang` in-memory model, the PUI
 wire protocol, and the `&key` localization rule), so **Polaris and this repo must be cloned side
-by side under one parent directory** — or point `POLARIS_DIR` at it.
+by side under one parent directory** — if it lives elsewhere, override the `PolarisDir` property in
+`Directory.Build.props.user` (no environment variable support anymore).
 
 ### Related Projects
 

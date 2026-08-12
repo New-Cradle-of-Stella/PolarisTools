@@ -9,15 +9,15 @@
       运行时永远共用同一份代码（具体是哪几个文件、为什么，见 PolarisTools.csproj 里的注释）；
       这里只是把那个相对路径提出来，好在缺失时给出能看懂的报错，而不是一串 CS2001。
 
-      优先级：Directory.Build.props.user > 环境变量 POLARIS_DIR > 兄弟目录默认值。
+      优先级：Directory.Build.props.user > 兄弟目录默认值。不再读环境变量——两个仓库并排 clone
+      是唯一支持的布局，少一个环境变量要配置。
     -->
-    <PolarisDir Condition="'$(PolarisDir)' == '' And '$(POLARIS_DIR)' != ''">$(POLARIS_DIR)</PolarisDir>
     <PolarisDir Condition="'$(PolarisDir)' == ''">$(MSBuildThisFileDirectory)..\Polaris</PolarisDir>
   </PropertyGroup>
 
   <Target Name="CheckPolarisDir" BeforeTargets="CoreCompile">
     <Error Condition="!Exists('$(PolarisDir)\Lang\PlangEntry.cs')"
-           Text="Cannot find the Polaris sources: $(PolarisDir)&#xA;Polaris and PolarisTools are expected to be cloned side by side under the same parent directory -- this repository links several source files from there into its own compilation (the .plang memory model, the PUI hot reload wire protocol, and the &quot;leading &amp; = localization key&quot; rule). Clone Polaris next to this repository, or set the POLARIS_DIR environment variable to point at it." />
+           Text="Cannot find the Polaris sources: $(PolarisDir)&#xA;Polaris and PolarisTools are expected to be cloned side by side under the same parent directory -- this repository links several source files from there into its own compilation (the .plang memory model, the PUI hot reload wire protocol, and the &quot;leading &amp; = localization key&quot; rule). Clone Polaris next to this repository (as a sibling ..\Polaris directory), or override the PolarisDir MSBuild property in Directory.Build.props.user." />
   </Target>
 
 </Project>
