@@ -35,17 +35,6 @@
 		<PackageReference Include="Nodify" Version="7.3.0" />
 	</ItemGroup>
 
-	<!--
-    哈++（.phxx）的实时诊断（Event\Language\HppDiagnosticsService）和构建期编译
-    （Event\PolarisEventGenerator）共用同一份编译器：语法/语义规则只能有一份实现，否则两条路径的
-    报错迟早会漂移（PolarisEvent-实现计划.md §10）。.phxx 现在完全由 PolarisTools 自己的单文件
-    生成器编译，不再有 Polaris.Event.Build 这个独立的 MSBuild Task 项目。
-    Polaris.Event.Compiler 是 netstandard2.0，net472 可以直接 ProjectReference。
-  -->
-	<ItemGroup>
-		<ProjectReference Include="$(PolarisDir)\Polaris.Event.Compiler\Polaris.Event.Compiler.csproj" />
-	</ItemGroup>
-
 	<ItemGroup>
 		<Reference Include="Microsoft.CSharp" />
 		<Reference Include="System.Design" />
@@ -90,12 +79,6 @@
 		</VSIXSourceItem>
 		<VSIXSourceItem Include="ItemTemplates\Polaris\PlangFile\**\*.*">
 			<VSIXSubPath>ItemTemplates\Polaris\PlangFile</VSIXSubPath>
-		</VSIXSourceItem>
-		<VSIXSourceItem Include="ItemTemplates\Polaris\EventFile\**\*.*">
-			<VSIXSubPath>ItemTemplates\Polaris\EventFile</VSIXSubPath>
-		</VSIXSourceItem>
-		<VSIXSourceItem Include="ItemTemplates\Polaris\EventAliases\**\*.*">
-			<VSIXSubPath>ItemTemplates\Polaris\EventAliases</VSIXSubPath>
 		</VSIXSourceItem>
 	</ItemGroup>
 

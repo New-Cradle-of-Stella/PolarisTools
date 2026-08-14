@@ -3,8 +3,6 @@ using EnvDTE80;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.TextTemplating.VSHost;
-using PolarisTools.Event;
-using PolarisTools.Event.Language;
 using PolarisTools.Lang;
 using PolarisTools.Pui.PuiSolutions;
 using PolarisTools.Pui.PuiVisualEditor;
@@ -22,7 +20,6 @@ namespace PolarisTools;
 [ProvideCodeGenerator(typeof(PolarisPuiGenerator), PolarisPuiGenerator.GeneratorName, "Polaris .pui Source Generator", true)]
 [ProvideCodeGenerator(typeof(PolarisPuislnGenerator), PolarisPuislnGenerator.GeneratorName, "Polaris .puisln State Graph Source Generator", true)]
 [ProvideCodeGenerator(typeof(PolarisLangGenerator), PolarisLangGenerator.GeneratorName, "Polaris .plang Source Generator", true)]
-[ProvideCodeGenerator(typeof(PolarisEventGenerator), PolarisEventGenerator.GeneratorName, "Polaris .phxx Event Source Generator", true)]
 [Guid(PackageGuidString)]
 [ProvideMenuResource("Menus.ctmenu", 1)]
 [ProvideToolWindow(typeof(PuiSolutionWindow))]
@@ -60,8 +57,6 @@ public sealed class PolarisToolsPackage : AsyncPackage
         await PuiSolutionWindowCommand.InitializeAsync(this);
         await PuiVisualEditorWindowCommand.InitializeAsync(this);
         await PlangEditorWindowCommand.InitializeAsync(this);
-        await HppExplainCommand.InitializeAsync(this);
-        await HppMigrateCommand.InitializeAsync(this);
         try
         {
             _dte = await GetServiceAsync(typeof(DTE)) as DTE2;
@@ -150,8 +145,6 @@ public sealed class PolarisToolsPackage : AsyncPackage
         new GeneratorBinding(".puisln", PolarisPuislnGenerator.GeneratorName, ".psg.cs"),
         // .plang 生成的类是纯自动内容，不需要用户手写 code-behind，和 .puisln 一样不用 BeforeGenerate。
         new GeneratorBinding(".plang", PolarisLangGenerator.GeneratorName, ".g.cs"),
-        // .phxx 生成的 _Registrar 类同样完全自包含，不需要 code-behind。
-        new GeneratorBinding(".phxx", PolarisEventGenerator.GeneratorName, ".g.cs"),
     };
 
     /// <summary>

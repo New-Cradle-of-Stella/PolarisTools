@@ -40,18 +40,6 @@
 					<ButtonText>PLang Localization Tool Window</ButtonText>
 				</Strings>
 			</Button>
-			<Button guid="guidPolarisToolsPackageCmdSet" id="HppExplainCommandId" priority="0x0400" type="Button">
-				<Parent guid="guidPolarisToolsPackageCmdSet" id="PolarisMenuGroupId"/>
-				<Strings>
-					<ButtonText>哈++: Show Generated CMD for Active File</ButtonText>
-				</Strings>
-			</Button>
-			<Button guid="guidPolarisToolsPackageCmdSet" id="HppMigrateCommandId" priority="0x0500" type="Button">
-				<Parent guid="guidPolarisToolsPackageCmdSet" id="PolarisMenuGroupId"/>
-				<Strings>
-					<ButtonText>哈++: Generate Alias Candidates from Active .cmd</ButtonText>
-				</Strings>
-			</Button>
 		</Buttons>
 	</Commands>
 
@@ -64,8 +52,6 @@
 			<IDSymbol name="PuiSolutionWindowCommandId" value="0x0100" />
 			<IDSymbol name="OpenPuiVisualEditorCommandId" value="0x0101" />
 			<IDSymbol name="PlangEditorWindowCommandId" value="0x0102" />
-			<IDSymbol name="HppExplainCommandId" value="0x0103" />
-			<IDSymbol name="HppMigrateCommandId" value="0x0104" />
 		</GuidSymbol>
 	</Symbols>
 </CommandTable>
