@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   人物目录：Namespace 必须是小写 ASCII 标识段（可含 '.'），最终人物 ID 为 <Namespace>:<Actor.Id>。
-  aic 是原版固定人物的封闭命名空间，模组不能占用。
+  aic 是原版固定人物的封闭命名空间，模组不能占用；声明 LegacyPerson 也只有 Polaris 内置目录能做。
 
-  Portrait / WorldSprite 的 Resource 指向本项目里带 [PolarisResource] 的 static
-  PxlsCharacterHandle 字段，UiPortrait 与 Icon 指向 MImage 字段；字段所属类要带
-  [PolarisResourceFolder]。保存时生成器会校验这些字段的类型、static 与可见性。
+  两类视觉资源：
+    Portrait / WorldSprite  指向本项目里带 [PolarisResource] 的 static PxlsCharacterHandle 字段。
+    UiPortrait / Icon       指向 static MImage 字段。
+  字段所属类要带 [PolarisResourceFolder]；保存时生成器会校验字段的类型、static 与可见性。
+
+  Appearance 是给 .pevt 用的语义外观名（@actor_enter 的 appearanceId），它把 Portrait 与
+  pose/frame 绑在一起，因此事件脚本里不会出现原版那种复合 PIC 串。
+  Anchor 是这个人物专用的站位；left/center/right 等通用语义锚点由 PolarisEvent 内置，不必在这里重复声明。
+
+  这个文件里的每一处错误都会在编辑时以 PEVT91xx 实时报出——和游戏加载目录时用的是同一个严格 reader。
 -->
 <ActorCatalog xmlns="urn:polaris:pevt:actors:v1"
               Version="1"
@@ -13,14 +20,44 @@
 
   <Actor Id="example"
          DisplayName="Example"
+         Voice="talk_mob_w3"
+         Color="#B7C3FC"
          DefaultPortrait="default">
+
+    <!-- 事件立绘：PXLS 角色资源。 -->
     <Portrait Id="default"
               Provider="polaris-res"
               Resource="$safeprojectname$.Resources.ExamplePortrait" />
+
+    <!-- 换装／差分：同一份 PXLS 的另一个 pose。 -->
+    <Portrait Id="uniform"
+              Provider="polaris-res"
+              Resource="$safeprojectname$.Resources.ExamplePortraitUniform" />
+
+    <!-- 对话框头像：MImage 资源，和立绘是两类资源。 -->
+    <UiPortrait Id="face"
+                Provider="polaris-res"
+                Resource="$safeprojectname$.Resources.ExampleFace" />
+
+    <!-- 语义外观：@actor_enter("...:example", "left", "neutral", 30) 用的就是这里的 Id。 -->
     <Appearance Id="neutral"
                 Portrait="default"
                 Pose="stand"
                 Frame="neutral" />
+
+    <Appearance Id="smile"
+                Portrait="default"
+                Pose="stand"
+                Frame="smile" />
+
+    <Appearance Id="uniform"
+                Portrait="uniform"
+                Pose="stand"
+                Frame="neutral" />
+
+    <!-- 人物专用站位。通用锚点（left/center/right/near-*/far-*/off-*）不需要在这里声明。 -->
+    <Anchor Id="window" X="120" Y="0" />
+
   </Actor>
 
 </ActorCatalog>

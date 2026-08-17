@@ -1,0 +1,46 @@
+id "$fileinputname$"
+enable async
+
+// P0 演出模板：对话、选择、立绘、图层、画面、音频与 UI 各一条可跑的最小用法。
+// 每条 @ 的签名、参数域和等待方式都由 PolarisEvent 的描述目录登记，把光标停在名称上看快速信息。
+
+// ---- 开场：收起 UI，压黑，切 BGM ----
+@ui_visible(false)
+@screen_fade("#000000", 1.0, 0, "linear")
+handler bgm = @music_play_start("BGM_school", 60)
+
+// ---- 人物入场。frames 为 0 表示立即到位 ----
+@actor_enter("aic:noel", "left", "default", 30)
+@actor_appearance("aic:noel", "default")
+
+// ---- 亮起来。等 BGM 切换完再开口，避免第一句话压在渐变里 ----
+@screen_fade("#000000", 0.0, 45, "ease_out")
+await bgm
+
+@say("aic:noel", "……早上好。")
+@actor_emote("aic:noel", "smile")
+@say("aic:noel", "今天也是个好天气。")
+
+// ---- 选择。序号从 1 开始 ----
+var picked : int = @choose("怎么回应？", "打招呼", "沉默")
+if picked == 1
+    @say("aic:noel", "嗯，早上好。")
+    @actor_motion("aic:noel", "nod", 20)
+else
+    @narrate("走廊里只有风声。")
+    @wait(30)
+endif
+
+// ---- 演出图层与画面效果 ----
+@image_show("cg_main", "EvImg/classroom")
+@image_fade("cg_main", 1.0, 30, "ease_in_out")
+@camera_shake(2.0, 20, 1.5)
+@sound_play("door_open", 1.0, 1.0)
+
+// ---- 收场：人物退场，画面压黑，恢复 UI ----
+@actor_exit("aic:noel", 30)
+@image_hide("cg_main", 20)
+@screen_fade("#000000", 1.0, 45, "ease_in")
+@ui_visible(true)
+
+end

@@ -95,6 +95,9 @@
 		<VSIXSourceItem Include="ItemTemplates\Polaris\PactorFile\**\*.*">
 			<VSIXSubPath>ItemTemplates\Polaris\PactorFile</VSIXSubPath>
 		</VSIXSourceItem>
+		<VSIXSourceItem Include="ItemTemplates\Polaris\PevtStagingFile\**\*.*">
+			<VSIXSubPath>ItemTemplates\Polaris\PevtStagingFile</VSIXSubPath>
+		</VSIXSourceItem>
 	</ItemGroup>
 
 	<!--
@@ -123,8 +126,24 @@
 			<!-- 只打第三方，不打 VS SDK/宿主进程自带的那堆（PresentationCore 等 WPF 核心程序集、
            EnvDTE 系列、Microsoft.VisualStudio.*、Microsoft.Build.* 都由 devenv.exe 自己提供，
            重复打包只会增大体积，个别情况下还可能因为版本不一致触发装配冲突）。 -->
+			<!--
+        Microsoft.CodeAnalysis*（含它拖来的 System.Collections.Immutable /
+        System.Reflection.Metadata）同样由宿主提供，必须排除。
+
+        它是 PolarisEvent 为 `$raw cs` 的 PEVT8007-8010 带来的传递依赖：那一段需要真正的 C#
+        语义分析。但 devenv.exe 自己就装着 Roslyn，VSIX 再打一份 12 MB 不仅让包从 5 MB 涨到
+        17 MB，还会在同一个进程里出现两个版本的 Microsoft.CodeAnalysis——装配绑定撞车的报错
+        极难定位。
+
+        因此工具侧不要 new PevtRoslynRawCsCompiler()，而要通过 Core 的端口
+        IPevtRawCsCompiler / IPevtRawCsAnalyzer 接 Visual Studio 自己那一份 Roslyn：包装规则、
+        类型映射、缓存和诊断编号仍然全部来自 PolarisEvent，两侧不会各写一套。
+      -->
 			<VSIXSourceItem Include="@(VsixOutputDll)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('Microsoft.VisualStudio')) == false
                                  and $([System.String]::Copy('%(Filename)').StartsWith('Microsoft.Build')) == false
+                                 and $([System.String]::Copy('%(Filename)').StartsWith('Microsoft.CodeAnalysis')) == false
+                                 and '%(Filename)' != 'System.Collections.Immutable'
+                                 and '%(Filename)' != 'System.Reflection.Metadata'
                                  and '%(Filename)' != 'EnvDTE'
                                  and '%(Filename)' != 'EnvDTE80'
                                  and '%(Filename)' != 'stdole'

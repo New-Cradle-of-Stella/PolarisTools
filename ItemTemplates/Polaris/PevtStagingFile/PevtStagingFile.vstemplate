@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Polaris Event File (P0 Staging)</Name>
+    <Description>Polaris PEVT event script with a full P0 staging example: dialogue, choice, portraits, layers, camera, audio and UI (.pevt)</Description>
+    <DefaultName>NewStagingEvent.pevt</DefaultName>
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>111</SortOrder>
+    <TemplateGroupID>Polaris</TemplateGroupID>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem TargetFileName="$fileinputname$.pevt" ReplaceParameters="true">Template.pevt</ProjectItem>
+  </TemplateContent>
+</VSTemplate>
