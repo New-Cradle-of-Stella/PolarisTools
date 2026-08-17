@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  人物目录：Namespace 必须是小写 ASCII 标识段（可含 '.'），最终人物 ID 为 <Namespace>:<Actor.Id>。
+  aic 是原版固定人物的封闭命名空间，模组不能占用。
+
+  Portrait / WorldSprite 的 Resource 指向本项目里带 [PolarisResource] 的 static
+  PxlsCharacterHandle 字段，UiPortrait 与 Icon 指向 MImage 字段；字段所属类要带
+  [PolarisResourceFolder]。保存时生成器会校验这些字段的类型、static 与可见性。
+-->
+<ActorCatalog xmlns="urn:polaris:pevt:actors:v1"
+              Version="1"
+              Namespace="$safeprojectname$">
+
+  <Actor Id="example"
+         DisplayName="Example"
+         DefaultPortrait="default">
+    <Portrait Id="default"
+              Provider="polaris-res"
+              Resource="$safeprojectname$.Resources.ExamplePortrait" />
+    <Appearance Id="neutral"
+                Portrait="default"
+                Pose="stand"
+                Frame="neutral" />
+  </Actor>
+
+</ActorCatalog>

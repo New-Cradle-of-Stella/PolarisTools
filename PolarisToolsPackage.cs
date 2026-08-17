@@ -3,6 +3,8 @@ using EnvDTE80;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.TextTemplating.VSHost;
+using PolarisTools.Event.Actors;
+using PolarisTools.Event.Pevt;
 using PolarisTools.Lang;
 using PolarisTools.Pui.PuiSolutions;
 using PolarisTools.Pui.PuiVisualEditor;
@@ -20,6 +22,8 @@ namespace PolarisTools;
 [ProvideCodeGenerator(typeof(PolarisPuiGenerator), PolarisPuiGenerator.GeneratorName, "Polaris .pui Source Generator", true)]
 [ProvideCodeGenerator(typeof(PolarisPuislnGenerator), PolarisPuislnGenerator.GeneratorName, "Polaris .puisln State Graph Source Generator", true)]
 [ProvideCodeGenerator(typeof(PolarisLangGenerator), PolarisLangGenerator.GeneratorName, "Polaris .plang Source Generator", true)]
+[ProvideCodeGenerator(typeof(PolarisPevtGenerator), PolarisPevtGenerator.GeneratorName, "Polaris .pevt Source Generator", true)]
+[ProvideCodeGenerator(typeof(PolarisPactorGenerator), PolarisPactorGenerator.GeneratorName, "Polaris .pactor Source Generator", true)]
 [Guid(PackageGuidString)]
 [ProvideMenuResource("Menus.ctmenu", 1)]
 [ProvideToolWindow(typeof(PuiSolutionWindow))]
@@ -145,6 +149,10 @@ public sealed class PolarisToolsPackage : AsyncPackage
         new GeneratorBinding(".puisln", PolarisPuislnGenerator.GeneratorName, ".psg.cs"),
         // .plang 生成的类是纯自动内容，不需要用户手写 code-behind，和 .puisln 一样不用 BeforeGenerate。
         new GeneratorBinding(".plang", PolarisLangGenerator.GeneratorName, ".g.cs"),
+        // .pevt 生成的只是压缩载荷提交器，.pactor 生成的只是不可变人物数据与延迟资源访问器，
+        // 两者都没有"用户手写 code-behind"这个概念。
+        new GeneratorBinding(".pevt", PolarisPevtGenerator.GeneratorName, ".g.cs"),
+        new GeneratorBinding(".pactor", PolarisPactorGenerator.GeneratorName, ".g.cs"),
     };
 
     /// <summary>

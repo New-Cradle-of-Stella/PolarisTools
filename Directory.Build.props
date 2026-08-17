@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <Target Name="CheckPolarisDir" BeforeTargets="CoreCompile">
-    <Error Condition="!Exists('$(PolarisDir)\Lang\PlangEntry.cs')"
+    <Error Condition="!Exists('$(PolarisDir)\PolarisLang\Lang\PlangEntry.cs')"
            Text="Cannot find the Polaris sources: $(PolarisDir)&#xA;Polaris and PolarisTools are expected to be cloned side by side under the same parent directory -- this repository links several source files from there into its own compilation (the .plang memory model, the PUI hot reload wire protocol, and the &quot;leading &amp; = localization key&quot; rule). Clone Polaris next to this repository (as a sibling ..\Polaris directory), or override the PolarisDir MSBuild property in Directory.Build.props.user." />
   </Target>
 

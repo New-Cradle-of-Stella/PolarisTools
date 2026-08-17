@@ -1,0 +1,13 @@
+id "$fileinputname$"
+
+@say("aic:noel", "早上好。")
+@narrate("风穿过走廊。")
+
+var picked : int = @choose("怎么办？", "留下", "离开")
+if picked == 1
+@say("aic:noel", "那就留下吧。")
+else
+@say("aic:noel", "走吧。")
+endif
+
+end

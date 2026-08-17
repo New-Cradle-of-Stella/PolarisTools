@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Polaris Actor Catalog</Name>
+    <Description>Polaris PEVT actor catalog (.pactor)</Description>
+    <DefaultName>NewActors.pactor</DefaultName>
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>120</SortOrder>
+    <TemplateGroupID>Polaris</TemplateGroupID>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem TargetFileName="$fileinputname$.pactor" ReplaceParameters="true">Template.pactor</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

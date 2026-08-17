@@ -50,6 +50,15 @@
 	</ItemGroup>
 
 	<!--
+    工具侧与游戏侧共用同一份 PEVT 语言核心（词法、语法、类型、诊断），不允许各自维护一份解析器
+    悄悄写歪。$(PolarisDir) 见 Directory.Build.props——与上面链接 .cs 文件用的是同一个兄弟目录约定，
+    这里改成 ProjectReference 是因为 PEVT 前端是 PolarisEvent 的独立 netstandard2.0 目标，而不是零散源文件。
+  -->
+	<ItemGroup>
+		<ProjectReference Include="$(PolarisDir)\PolarisEvent\PolarisEvent.csproj" />
+	</ItemGroup>
+
+	<!--
     从 Polaris（游戏侧运行时库，$(PolarisDir) 见 Directory.Build.props）链接过来编译的源文件。
     共同点是"两侧必须字字一致，抄成两份就会悄悄写歪"，而且都刻意不引用 UnityEngine/XX/
     BepInEx，net472 直接能编译：
@@ -62,10 +71,10 @@
         不会出现"预览按一套、真机按另一套"。真正查表的部分在游戏侧。
   -->
 	<ItemGroup>
-		<Compile Include="$(PolarisDir)\Lang\PlangEntry.cs" Link="Lang\Shared\PlangEntry.cs" />
-		<Compile Include="$(PolarisDir)\Lang\PlangDocument.cs" Link="Lang\Shared\PlangDocument.cs" />
-		<Compile Include="$(PolarisDir)\PUI\HotReload\PuiWireProtocol.cs" Link="Pui\Shared\PuiWireProtocol.cs" />
-		<Compile Include="$(PolarisDir)\Localization\LocalizedString.cs" Link="Pui\Shared\LocalizedString.cs" />
+		<Compile Include="$(PolarisDir)\PolarisLang\Lang\PlangEntry.cs" Link="Lang\Shared\PlangEntry.cs" />
+		<Compile Include="$(PolarisDir)\PolarisLang\Lang\PlangDocument.cs" Link="Lang\Shared\PlangDocument.cs" />
+		<Compile Include="$(PolarisDir)\PolarisUI\PUI\HotReload\PuiWireProtocol.cs" Link="Pui\Shared\PuiWireProtocol.cs" />
+		<Compile Include="$(PolarisDir)\PolarisCore\Localization\LocalizedString.cs" Link="Pui\Shared\LocalizedString.cs" />
 	</ItemGroup>
 
 	<!-- Item Templates -->
@@ -79,6 +88,12 @@
 		</VSIXSourceItem>
 		<VSIXSourceItem Include="ItemTemplates\Polaris\PlangFile\**\*.*">
 			<VSIXSubPath>ItemTemplates\Polaris\PlangFile</VSIXSubPath>
+		</VSIXSourceItem>
+		<VSIXSourceItem Include="ItemTemplates\Polaris\PevtFile\**\*.*">
+			<VSIXSubPath>ItemTemplates\Polaris\PevtFile</VSIXSubPath>
+		</VSIXSourceItem>
+		<VSIXSourceItem Include="ItemTemplates\Polaris\PactorFile\**\*.*">
+			<VSIXSubPath>ItemTemplates\Polaris\PactorFile</VSIXSubPath>
 		</VSIXSourceItem>
 	</ItemGroup>
 

@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using PolarisTools.Res;
 
 namespace PolarisTools.Pui.PuiVisualEditor
 {
@@ -297,309 +298,37 @@ namespace PolarisTools.Pui.PuiVisualEditor
             return result;
         }
 
-        // 类型/成员声明。record/struct 也一起认：作者要是把资源容器写成 static class 之外的形式，
-        // 运行时 AutoBindScanner 照样能扫到（它只看特性，不看类型种类）。
-        private static readonly Regex TypeDeclRegex =
-            new Regex(@"\b(?:class|struct|record)\s+(?<name>[A-Za-z_]\w*)", RegexOptions.Compiled);
-
-        private static readonly Regex NamespaceRegex =
-            new Regex(@"\bnamespace\s+(?<name>[A-Za-z_][\w.]*)", RegexOptions.Compiled);
-
-        private static readonly Regex FolderAttrRegex =
-            new Regex(@"\[\s*(?:PolarisResourceFolder|PolarisResourceFolderAttribute)\s*\(\s*(?<lit>@?""(?:[^""\\]|\\.|"""")*"")",
-                RegexOptions.Compiled);
-
-        // [PolarisResource("path")] + 修饰符 + 类型 + 字段名。修饰符里允许夹别的特性
-        // （比如 [Obsolete]），类型允许带命名空间限定/可空标记（XX.MImage、global::XX.MImage?）。
-        private static readonly Regex ResourceFieldRegex = new Regex(
-            @"\[\s*(?:PolarisResource|PolarisResourceAttribute)\s*\(\s*(?<lit>@?""(?:[^""\\]|\\.|"""")*"")\s*\)\s*\]" +
-            @"(?<mods>(?:\s*\[[^\]]*\]|\s+(?:public|internal|protected|private|static|readonly|volatile|unsafe|new))*)" +
-            @"\s+(?<type>[A-Za-z_][\w.:]*\??)\s+(?<name>[A-Za-z_]\w*)\s*(?<tail>[=;,])",
-            RegexOptions.Compiled);
-
         /// <summary>
-        /// 扫一个 <c>.cs</c>：先算出"哪些位置在注释/字符串里"的掩码（后面的花括号配对和正则命中
-        /// 判定都靠它，免得代码里一句 <c>"{"</c> 就把类体范围算歪），再取全部类型声明的体范围、
-        /// 打了文件夹特性的类，最后把每个资源字段归属到最内层的那个类。
+        /// 扫一个 <c>.cs</c>，挑出能被 PUI <c>Image</c> 引用的资源字段。
+        ///
+        /// 掩码、花括号配对和特性识别全部走共享的 <see cref="CSharpResourceScanner"/>——
+        /// <c>.pactor</c> 生成器用的是同一份实现，两边不可能对"什么算一个资源字段"产生分歧。
+        /// 这里只保留 PUI 自己的取舍：必须是 <c>MImage</c>、必须能被同程序集的生成代码引用、
+        /// 所属类必须打了文件夹特性（否则运行时 AutoBindScanner 根本不会回填，列出来只会误导）。
         /// </summary>
         private void ScanFile(string text, List<PolarisImageResource> result)
         {
-            bool[] masked = BuildMask(text);
-            List<TypeDecl> types = FindTypeDecls(text, masked);
-            if (types.Count == 0)
+            foreach (ResourceFieldDeclaration declaration in CSharpResourceScanner.Scan(text))
             {
-                return;
-            }
-
-            // 文件夹特性 → 它后面最近的那个类型声明。
-            foreach (Match attr in FolderAttrRegex.Matches(text))
-            {
-                if (masked[attr.Index] || !TryParseStringLiteral(attr.Groups["lit"].Value, out string folder))
+                if (!declaration.IsTypeNamed("MImage"))
                 {
                     continue;
                 }
 
-                TypeDecl owner = null;
-                foreach (TypeDecl type in types)
-                {
-                    if (type.DeclIndex > attr.Index && (owner == null || type.DeclIndex < owner.DeclIndex))
-                    {
-                        owner = type;
-                    }
-                }
-                if (owner != null)
-                {
-                    owner.Folder = folder;
-                    owner.HasFolderAttribute = true;
-                }
-            }
-
-            foreach (Match field in ResourceFieldRegex.Matches(text))
-            {
-                if (masked[field.Index])
+                if (!declaration.IsStatic || !declaration.IsAccessible || !declaration.DeclaringTypeHasFolderAttribute)
                 {
                     continue;
                 }
-
-                string mods = field.Groups["mods"].Value;
-                // 必须是 static（AutoBindScanner 只回填 static 字段），而且必须能被同程序集里
-                // 生成出来的 .pui.cs 引用到——private/protected（含不写修饰符的默认 private）
-                // 字段虽然运行时也会被回填，但写进生成代码里会直接编译不过，不列进候选。
-                if (!HasWord(mods, "static") || !(HasWord(mods, "public") || HasWord(mods, "internal"))
-                    || HasWord(mods, "private") || HasWord(mods, "protected"))
-                {
-                    continue;
-                }
-
-                // 只要 MImage：DsnDataImg.MI 就是这个类型，Texture2D/AudioClip 之类的字段
-                // 塞给它编译不过，列出来只会误导。
-                if (!IsMImageType(field.Groups["type"].Value))
-                {
-                    continue;
-                }
-
-                if (!TryParseStringLiteral(field.Groups["lit"].Value, out string resourcePath))
-                {
-                    continue;
-                }
-
-                TypeDecl innermost = FindInnermost(types, field.Index);
-                if (innermost == null || !innermost.HasFolderAttribute)
-                {
-                    // 类本身没打 [PolarisResourceFolder] 就不会被运行时自动绑定（AutoBindScanner
-                    // 只记一条警告），这里跟着一起跳过，免得列出一个运行时永远是 null 的字段。
-                    continue;
-                }
-
-                string chain = BuildTypeChain(types, field.Index);
-                string ns = FindNamespace(text, masked, innermost.DeclIndex);
-                string reference = string.IsNullOrEmpty(ns)
-                    ? chain + "." + field.Groups["name"].Value
-                    : ns + "." + chain + "." + field.Groups["name"].Value;
 
                 result.Add(new PolarisImageResource(
-                    reference,
-                    chain + "." + field.Groups["name"].Value,
-                    innermost.Folder,
-                    resourcePath,
-                    ResolveImageFile(innermost.Folder, resourcePath)));
+                    declaration.Reference,
+                    declaration.DisplayName,
+                    declaration.Folder,
+                    declaration.ResourcePath,
+                    ResolveImageFile(declaration.Folder, declaration.ResourcePath)));
             }
         }
 
-        private sealed class TypeDecl
-        {
-            public string Name;
-            public int DeclIndex;
-            public int BodyStart;
-            public int BodyEnd; // 闭花括号的下标
-            public string Folder = "";
-            public bool HasFolderAttribute;
-
-            public bool Contains(int index) => index > BodyStart && index < BodyEnd;
-        }
-
-        private static List<TypeDecl> FindTypeDecls(string text, bool[] masked)
-        {
-            var types = new List<TypeDecl>();
-            foreach (Match m in TypeDeclRegex.Matches(text))
-            {
-                if (masked[m.Index])
-                {
-                    continue;
-                }
-
-                // 声明头之后的第一个花括号才是类体开始；先遇到 ';' 说明是无体声明
-                // （record Foo(...); / partial 声明的前向引用之类），没有可扫的字段。
-                int bodyStart = -1;
-                for (int i = m.Index + m.Length; i < text.Length; i++)
-                {
-                    if (masked[i]) continue;
-                    if (text[i] == '{') { bodyStart = i; break; }
-                    if (text[i] == ';') break;
-                }
-                if (bodyStart < 0)
-                {
-                    continue;
-                }
-
-                int bodyEnd = FindMatchingBrace(text, masked, bodyStart);
-                if (bodyEnd < 0)
-                {
-                    continue;
-                }
-
-                types.Add(new TypeDecl
-                {
-                    Name = m.Groups["name"].Value,
-                    DeclIndex = m.Index,
-                    BodyStart = bodyStart,
-                    BodyEnd = bodyEnd,
-                });
-            }
-            return types;
-        }
-
-        private static int FindMatchingBrace(string text, bool[] masked, int openIndex)
-        {
-            int depth = 0;
-            for (int i = openIndex; i < text.Length; i++)
-            {
-                if (masked[i]) continue;
-                if (text[i] == '{') depth++;
-                else if (text[i] == '}')
-                {
-                    depth--;
-                    if (depth == 0) return i;
-                }
-            }
-            return -1;
-        }
-
-        private static TypeDecl FindInnermost(List<TypeDecl> types, int index)
-        {
-            TypeDecl innermost = null;
-            foreach (TypeDecl type in types)
-            {
-                if (type.Contains(index) && (innermost == null || type.BodyStart > innermost.BodyStart))
-                {
-                    innermost = type;
-                }
-            }
-            return innermost;
-        }
-
-        /// <summary>
-        /// 嵌套类的完整访问链，外层在前（<c>Outer.Inner</c>）——生成代码里必须写全，
-        /// 只写最内层的 <c>Inner.field</c> 编译不过。
-        /// </summary>
-        private static string BuildTypeChain(List<TypeDecl> types, int index)
-        {
-            var chain = new List<TypeDecl>();
-            foreach (TypeDecl type in types)
-            {
-                if (type.Contains(index))
-                {
-                    chain.Add(type);
-                }
-            }
-            chain.Sort((a, b) => a.BodyStart.CompareTo(b.BodyStart));
-
-            var sb = new StringBuilder();
-            foreach (TypeDecl type in chain)
-            {
-                if (sb.Length > 0) sb.Append('.');
-                sb.Append(type.Name);
-            }
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// 类所在的命名空间：取声明位置之前最后一个 <c>namespace</c>（块作用域和文件作用域
-        /// 两种写法都能覆盖）。同一个文件里写了多个平级块命名空间时这只是近似——那种写法
-        /// 极少见，猜错的后果也只是引用少/多一层前缀，用户在下拉里一眼能看出来。
-        /// </summary>
-        private static string FindNamespace(string text, bool[] masked, int declIndex)
-        {
-            string ns = "";
-            foreach (Match m in NamespaceRegex.Matches(text))
-            {
-                if (m.Index >= declIndex || masked[m.Index])
-                {
-                    continue;
-                }
-                ns = m.Groups["name"].Value;
-            }
-            return ns;
-        }
-
-        private static bool IsMImageType(string type)
-        {
-            string t = type.TrimEnd('?');
-            int lastDot = t.LastIndexOf('.');
-            if (lastDot >= 0)
-            {
-                t = t.Substring(lastDot + 1);
-            }
-            return string.Equals(t, "MImage", StringComparison.Ordinal);
-        }
-
-        private static bool HasWord(string modifiers, string word)
-            => Regex.IsMatch(modifiers, @"\b" + word + @"\b");
-
-        /// <summary>
-        /// C# 字符串字面量 → 实际值。普通字面量脱一层常见转义，逐字字面量（<c>@"..."</c>）
-        /// 只把 <c>""</c> 还原成一个引号。认不出来（不是字面量，比如写的是 nameof/常量引用）
-        /// 返回 false——那种写法编辑器无法静态求值，跳过比猜错好。
-        /// </summary>
-        private static bool TryParseStringLiteral(string literal, out string value)
-        {
-            value = null;
-            if (string.IsNullOrEmpty(literal))
-            {
-                return false;
-            }
-
-            bool verbatim = literal[0] == '@';
-            string body = verbatim ? literal.Substring(1) : literal;
-            if (body.Length < 2 || body[0] != '"' || body[body.Length - 1] != '"')
-            {
-                return false;
-            }
-            body = body.Substring(1, body.Length - 2);
-
-            var sb = new StringBuilder(body.Length);
-            for (int i = 0; i < body.Length; i++)
-            {
-                char c = body[i];
-                if (verbatim)
-                {
-                    if (c == '"' && i + 1 < body.Length && body[i + 1] == '"') i++;
-                    sb.Append(c);
-                    continue;
-                }
-
-                if (c != '\\' || i + 1 >= body.Length)
-                {
-                    sb.Append(c);
-                    continue;
-                }
-
-                char next = body[++i];
-                switch (next)
-                {
-                    case 'n': sb.Append('\n'); break;
-                    case 'r': sb.Append('\r'); break;
-                    case 't': sb.Append('\t'); break;
-                    case '0': sb.Append('\0'); break;
-                    // \\ \" \' 以及其它没列出来的转义：原样取被转义的那个字符。资源路径里
-                    // 真正会出现的只有 \\（目录分隔），这样处理就够。
-                    default: sb.Append(next); break;
-                }
-            }
-
-            value = sb.ToString();
-            return true;
-        }
 
         /// <summary>
         /// 预览用的文件探测：先按"项目目录 + 特性里的文件夹"直接找（约定俗成的布局：资源目录就
@@ -717,87 +446,6 @@ namespace PolarisTools.Pui.PuiVisualEditor
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// 逐字符标出"这个位置属于注释或字符串字面量，不是代码"。花括号配对、正则命中判定都先问
-        /// 它一句，所以代码注释里贴的一段示例代码、字符串里的 <c>"{"</c> 都不会污染扫描结果。
-        /// </summary>
-        private static bool[] BuildMask(string text)
-        {
-            var masked = new bool[text.Length];
-            int i = 0;
-            while (i < text.Length)
-            {
-                char c = text[i];
-
-                if (c == '/' && i + 1 < text.Length && text[i + 1] == '/')
-                {
-                    while (i < text.Length && text[i] != '\n') masked[i++] = true;
-                    continue;
-                }
-
-                if (c == '/' && i + 1 < text.Length && text[i + 1] == '*')
-                {
-                    while (i < text.Length && !(text[i] == '*' && i + 1 < text.Length && text[i + 1] == '/')) masked[i++] = true;
-                    if (i < text.Length) masked[i++] = true; // '*'
-                    if (i < text.Length) masked[i++] = true; // '/'
-                    continue;
-                }
-
-                // 逐字字符串：只有 "" 是转义，反斜杠不是。
-                if (c == '@' && i + 1 < text.Length && text[i + 1] == '"')
-                {
-                    masked[i++] = true; // '@'
-                    masked[i++] = true; // 开引号
-                    while (i < text.Length)
-                    {
-                        if (text[i] == '"')
-                        {
-                            if (i + 1 < text.Length && text[i + 1] == '"')
-                            {
-                                masked[i++] = true;
-                                masked[i++] = true;
-                                continue;
-                            }
-                            masked[i++] = true; // 闭引号
-                            break;
-                        }
-                        masked[i++] = true;
-                    }
-                    continue;
-                }
-
-                if (c == '"' || c == '\'')
-                {
-                    char quote = c;
-                    masked[i++] = true; // 开引号
-                    while (i < text.Length)
-                    {
-                        if (text[i] == '\\' && i + 1 < text.Length)
-                        {
-                            masked[i++] = true;
-                            masked[i++] = true;
-                            continue;
-                        }
-                        if (text[i] == quote)
-                        {
-                            masked[i++] = true; // 闭引号
-                            break;
-                        }
-                        if (text[i] == '\n')
-                        {
-                            // 未闭合（大概率是被 #if 切开的半句代码）：不吞掉换行，避免整个文件失真。
-                            break;
-                        }
-                        masked[i++] = true;
-                    }
-                    continue;
-                }
-
-                i++;
-            }
-            return masked;
         }
 
         /// <summary>
