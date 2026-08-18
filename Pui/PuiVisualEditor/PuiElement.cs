@@ -24,7 +24,8 @@ namespace PolarisTools.Pui.PuiVisualEditor
         Input,
         NumCounter,
         ColorCell,
-        Image
+        Image,
+        Custom
     }
 
 
@@ -365,6 +366,12 @@ namespace PolarisTools.Pui.PuiVisualEditor
         [ObservableProperty]
         private double _uvH = 1;
 
+        // Custom：对应运行时 Polaris.PUI.PuiCustomControl（占位 DsnDataImg + 一个后端 IPuiCustomControl
+        // 实现，用 Polaris.Drawing 画内容）。跟后端代码强绑定，只能填一个已经编译好的类型全名，
+        // 不像回调方法名那样可以留空占位。
+        [ObservableProperty]
+        private string _backendType = "";
+
         public static bool IsMarker(PuiElementType type) =>
             type == PuiElementType.LineStyle || type == PuiElementType.DefaultLineStyle;
 
@@ -474,6 +481,11 @@ namespace PolarisTools.Pui.PuiVisualEditor
                     Width = 64;
                     Height = 64;
                     Name = "Image1";
+                    break;
+                case PuiElementType.Custom:
+                    Width = 128;
+                    Height = 128;
+                    Name = "Custom1";
                     break;
             }
 
@@ -696,6 +708,9 @@ namespace PolarisTools.Pui.PuiVisualEditor
                     if (UvW != 1) elem.SetAttributeValue("UvW", UvW);
                     if (UvH != 1) elem.SetAttributeValue("UvH", UvH);
                     break;
+                case PuiElementType.Custom:
+                    if (!string.IsNullOrEmpty(BackendType)) elem.SetAttributeValue("BackendType", BackendType);
+                    break;
             }
 
             foreach (var child in Children)
@@ -878,6 +893,9 @@ namespace PolarisTools.Pui.PuiVisualEditor
                     e.UvY = (double?)elem.Attribute("UvY") ?? e.UvY;
                     e.UvW = (double?)elem.Attribute("UvW") ?? e.UvW;
                     e.UvH = (double?)elem.Attribute("UvH") ?? e.UvH;
+                    break;
+                case PuiElementType.Custom:
+                    e.BackendType = (string)elem.Attribute("BackendType") ?? "";
                     break;
             }
 

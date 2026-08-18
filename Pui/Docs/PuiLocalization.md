@@ -31,6 +31,7 @@ Text = &mymod.btn_ok
 | Slider 的 `DescKeys` | 同上，名字就叫 keys |
 | Input 的 `Text`（初始值） | 是输入框里预填的**数据**，不是标签 |
 | `Skin` / `ImageSource` | 资源名 |
+| Custom 的 `BackendType` | 是编译期类型全名，不是玩家会看到的文字 |
 
 简单记：**玩家会读到的那行字**支持，**代码要认的那个名字**不支持。
 

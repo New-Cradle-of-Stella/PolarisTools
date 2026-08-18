@@ -62,5 +62,7 @@ internal sealed class PuiHotReloadEmitter : IPuiEmitter
 
     public void AddImage(PuiImageParams p) => Add(PuiWireOpcode.AddImage, p);
 
+    public void AddCustom(PuiCustomParams p) => Add(PuiWireOpcode.AddCustom, p);
+
     public void OnBuildCompleted(string methodName) => Add(PuiWireOpcode.OnBuildCompleted, new PuiMethodNameParams { MethodName = methodName });
 }

@@ -79,6 +79,14 @@ namespace PolarisTools.Pui.PuiVisualEditor
                     new ToolboxItem { Type = PuiElementType.Image, DisplayName = "Image" },
                     new ToolboxItem { Type = PuiElementType.ColorCell, DisplayName = "Color cell" }
                 }
+            },
+            new ToolboxGroup
+            {
+                GroupName = "Advanced",
+                Items = new ObservableCollection<ToolboxItem>
+                {
+                    new ToolboxItem { Type = PuiElementType.Custom, DisplayName = "Custom control" }
+                }
             }
         };
 

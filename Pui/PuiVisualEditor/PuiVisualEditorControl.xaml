@@ -1104,6 +1104,26 @@
                                            Style="{StaticResource EmptyStateHint}" FontSize="10" Margin="0,8,0,0"/>
                             </StackPanel>
 
+                            <!-- Custom：自定义控件，跟后端代码强绑定。运行时对应 Polaris.PUI.PuiCustomControl，
+                                 占位大小同 Image（一个不赋图的 DsnDataImg），实际内容由 BackendType 指名的
+                                 一个 Polaris.PUI.IPuiCustomControl 实现用 Polaris.Drawing 画出来。 -->
+                            <StackPanel Visibility="{Binding ElementType, Converter={StaticResource typeColorConverter}, ConverterParameter=ShowCustom}">
+                                <Border Style="{StaticResource SectionChip}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="{x:Static controls:PuiIconCatalog.Custom}" Style="{StaticResource IconPathStyle}"/>
+                                        <TextBlock Text="Custom control" Style="{StaticResource SectionChipText}"/>
+                                    </StackPanel>
+                                </Border>
+                                <DockPanel Margin="0,0,0,6">
+                                    <TextBlock Text="Backend type" DockPanel.Dock="Left" Style="{StaticResource FieldLabelInline}"/>
+                                    <controls:PuiCustomControlPicker SelectedType="{Binding BackendType, Mode=TwoWay}"
+                                                                      SourceFilePath="{Binding DataContext.FilePath, RelativeSource={RelativeSource AncestorType=local:PuiVisualEditorControl}}"
+                                                                      SelectedTypeChanged="Property_Changed"/>
+                                </DockPanel>
+                                <TextBlock Text="Pick a class in this project implementing Polaris.PUI.IPuiCustomControl (public, non-abstract, non-generic, with a public parameterless constructor). It draws into the Width x Height area with Polaris.Drawing; there is no XML-expressible content, so the canvas above only shows a placeholder."
+                                           Style="{StaticResource EmptyStateHint}" FontSize="10" Margin="0,8,0,0"/>
+                            </StackPanel>
+
                             <Button HorizontalContentAlignment="Left" Margin="0,18,0,0" Click="Delete_Click"
                                     Style="{StaticResource DestructiveButton}"
                                     Visibility="{Binding ElementType, Converter={StaticResource typeColorConverter}, ConverterParameter=CanDelete}">

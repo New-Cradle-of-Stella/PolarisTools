@@ -262,6 +262,16 @@ internal static class PuiWireWriter
                 case PuiWireOpcode.OnBuildCompleted:
                     w.Write(((PuiMethodNameParams)cmd.Payload).MethodName ?? "");
                     break;
+
+                case PuiWireOpcode.AddCustom:
+                {
+                    var p = (PuiCustomParams)cmd.Payload;
+                    w.Write(p.Name ?? "");
+                    w.Write(p.Width);
+                    w.Write(p.Height);
+                    w.Write(p.BackendType ?? "");
+                    break;
+                }
             }
         }
     }

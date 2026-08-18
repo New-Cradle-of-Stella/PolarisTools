@@ -33,6 +33,8 @@
 
 > `Image` 控件要显示的 `MI`/`PF` 图集/帧数据是运行时对象，没法用 XML 字符串表达，目前也没有别的钩子能在代码里手动赋值——`Image` 控件暂时不会显示任何图案。
 
+`Custom`（自定义控件）不走上面的"方法名钩子 + 自动补桩"机制：属性面板里填的 `BackendType` 是一个**已经编译好的类型全名**（如 `MyMod.Controls.MyGraphControl`），不是留给插件自动生成方法桩的方法名——这个类必须实现 `Polaris.PUI.IPuiCustomControl`、有公共无参构造函数，你要自己在项目里手写它，插件既不会、也没法帮你生成或补全。生成的 `Foo.g.cs` 只是 `new global::MyMod.Controls.MyGraphControl()` 加一句 `Polaris.PUI.PuiCustomControl.Attach(...)`；控件实际画什么，全部由这个类的 `Draw(DrawContext ctx, PuiCustomControlBounds bounds)` 方法用 `Polaris.Drawing` 决定，画布上同样只能看到一个占位方块。
+
 **这些方法桩都不需要你手写**：只要 `.pui` 里某个属性指向的方法名在 `.pui.cs` 里还不存在，插件保存时会按上表的签名自动把桩追加到 `.pui.cs` 的末尾（`bool` 类型默认 `return false;`，`void` 类型默认空方法体），你只要把方法体改成真正的逻辑就行。已经存在的方法（不管是不是自动加的）永远不会被改动或删除，多个控件复用同一个方法名时也只会生成一份桩。
 
 ## 什么时候会重新生成 / 追加

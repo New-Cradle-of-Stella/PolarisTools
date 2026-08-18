@@ -40,6 +40,7 @@ namespace PolarisTools.Pui.PuiVisualEditor.Controls
         public static Geometry Checks { get; } = Geometry.Parse("M2,2 H12 V12 H2 Z M4,7 L7,10 L11,4");
         public static Geometry ColorCell { get; } = Geometry.Parse("M2,2 H14 V14 H2 Z M2,14 L14,2");
         public static Geometry Image { get; } = Geometry.Parse("M2,3 H14 V13 H2 Z M2,11 L6,7 L9,10 L12,7 L14,9");
+        public static Geometry Custom { get; } = Geometry.Parse("M2,2 H14 V14 H2 Z M4,5 L4,11 M6,4 L6,12 M9,9 L11,7 L9,5 M11,7 H14");
         public static Geometry Fallback { get; } = Geometry.Parse("M2,2 H14 V14 H2 Z");
         public static Geometry StateFlow { get; } = Geometry.Parse("M2,8 H9 M6,4 L10,8 L6,12 M11,3 H14 V6 M11,10 H14 V13");
 
@@ -79,6 +80,7 @@ namespace PolarisTools.Pui.PuiVisualEditor.Controls
                 case PuiElementType.NumCounter: return NumCounter;
                 case PuiElementType.ColorCell: return ColorCell;
                 case PuiElementType.Image: return Image;
+                case PuiElementType.Custom: return Custom;
                 default: return Fallback;
             }
         }

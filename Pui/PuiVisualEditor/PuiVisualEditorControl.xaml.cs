@@ -478,6 +478,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
                 "ShowNumCounter" => Is(value, PuiElementType.NumCounter),
                 "ShowColorCell" => Is(value, PuiElementType.ColorCell),
                 "ShowImage" => Is(value, PuiElementType.Image),
+                "ShowCustom" => Is(value, PuiElementType.Custom),
                 "EmptyListVisible" => value is IReadOnlyCollection<PuiCallbackHook> hooks && hooks.Count == 0
                     ? Visibility.Visible : Visibility.Collapsed,
                 _ => value
@@ -499,6 +500,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
                 && et != PuiElementType.Input
                 && et != PuiElementType.NumCounter
                 && et != PuiElementType.Image
+                && et != PuiElementType.Custom
                 && !PuiElement.IsMarker(et);
         }
 

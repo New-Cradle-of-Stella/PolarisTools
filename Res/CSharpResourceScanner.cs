@@ -79,6 +79,25 @@ namespace PolarisTools.Res
     }
 
     /// <summary>
+    /// <see cref="CSharpResourceScanner.ScanTypesImplementing"/> 的一条结果：一个实现了目标接口、
+    /// 可以直接 <c>new()</c> 的具体类型。
+    /// </summary>
+    internal sealed class TypeImplementation
+    {
+        /// <summary>可编译的完整引用，形如 <c>MyMod.Controls.MyGraphControl</c>（生成代码里加 <c>global::</c> 前缀）。</summary>
+        public string QualifiedName { get; }
+
+        /// <summary>去掉命名空间的短名，形如 <c>Controls.MyGraphControl</c>。</summary>
+        public string DisplayName { get; }
+
+        internal TypeImplementation(string qualifiedName, string displayName)
+        {
+            QualifiedName = qualifiedName;
+            DisplayName = displayName;
+        }
+    }
+
+    /// <summary>
     /// PolarisRes 资源字段的共用源码扫描器。
     ///
     /// <b>用文本扫描而不是 Roslyn</b>：这里要的信息只有"哪个类打了文件夹特性、里面哪些字段打了
@@ -92,9 +111,12 @@ namespace PolarisTools.Res
     internal static class CSharpResourceScanner
     {
         // 类型/成员声明。record/struct 也一起认：作者把资源容器写成 static class 之外的形式时，
-        // 运行时 AutoBindScanner 照样能扫到（它只看特性，不看类型种类）。
-        private static readonly Regex TypeDeclRegex =
-            new Regex(@"\b(?:class|struct|record)\s+(?<name>[A-Za-z_]\w*)", RegexOptions.Compiled);
+        // 运行时 AutoBindScanner 照样能扫到（它只看特性，不看类型种类）。mods 组只给
+        // ScanTypesImplementing 用（过滤 abstract），资源字段扫描本身不看它。
+        private static readonly Regex TypeDeclRegex = new Regex(
+            @"\b(?<mods>(?:(?:public|internal|protected|private|static|sealed|abstract|partial|unsafe|new)\s+)*)" +
+            @"(?:class|struct|record)\s+(?<name>[A-Za-z_]\w*)",
+            RegexOptions.Compiled);
 
         private static readonly Regex NamespaceRegex =
             new Regex(@"\bnamespace\s+(?<name>[A-Za-z_][\w.]*)", RegexOptions.Compiled);
@@ -114,7 +136,9 @@ namespace PolarisTools.Res
         private sealed class TypeDecl
         {
             public string Name;
+            public string Mods = "";
             public int DeclIndex;
+            public int NameEnd;
             public int BodyStart;
             public int BodyEnd;
             public string Folder = "";
@@ -212,6 +236,79 @@ namespace PolarisTools.Res
             return result;
         }
 
+        /// <summary>
+        /// 扫描所有实现了某个接口（按简单名匹配基类列表，允许 <c>global::</c>/命名空间限定前缀，
+        /// 比如接口名传 <c>"IPuiCustomControl"</c> 能匹配 <c>: Polaris.PUI.IPuiCustomControl</c>）
+        /// 的具体类/结构/record 声明，返回可以直接 <c>new()</c> 出来的完整引用（命名空间 + 嵌套链）。
+        /// 排除 <c>abstract</c> 类型和带类型形参的泛型声明——两者都没法直接 <c>new TypeName()</c>。
+        /// </summary>
+        public static IReadOnlyList<TypeImplementation> ScanTypesImplementing(string text, string interfaceSimpleName)
+        {
+            var result = new List<TypeImplementation>();
+            if (string.IsNullOrEmpty(text))
+            {
+                return result;
+            }
+
+            bool[] masked = BuildMask(text);
+            List<TypeDecl> types = FindTypeDecls(text, masked);
+            if (types.Count == 0)
+            {
+                return result;
+            }
+
+            var interfacePattern = new Regex(@"(?<!\w)" + Regex.Escape(interfaceSimpleName) + @"\b", RegexOptions.Compiled);
+
+            foreach (TypeDecl type in types)
+            {
+                if (HasWord(type.Mods, "abstract") || IsGeneric(text, masked, type.NameEnd))
+                {
+                    continue;
+                }
+
+                string header = ExtractUnmasked(text, masked, type.NameEnd, type.BodyStart);
+                int colon = header.IndexOf(':');
+                if (colon < 0 || !interfacePattern.IsMatch(header.Substring(colon + 1)))
+                {
+                    continue;
+                }
+
+                int chainIndex = type.BodyStart + 1;
+                string chain = BuildTypeChain(types, chainIndex);
+                string ns = FindNamespace(text, masked, type.DeclIndex);
+
+                result.Add(new TypeImplementation(
+                    string.IsNullOrEmpty(ns) ? chain : ns + "." + chain,
+                    chain));
+            }
+
+            result.Sort((a, b) => string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase));
+            return result;
+        }
+
+        private static bool IsGeneric(string text, bool[] masked, int nameEnd)
+        {
+            int i = nameEnd;
+            while (i < text.Length && (masked[i] || char.IsWhiteSpace(text[i])))
+            {
+                i++;
+            }
+            return i < text.Length && text[i] == '<';
+        }
+
+        private static string ExtractUnmasked(string text, bool[] masked, int start, int end)
+        {
+            var sb = new StringBuilder(end - start);
+            for (int i = start; i < end; i++)
+            {
+                if (!masked[i])
+                {
+                    sb.Append(text[i]);
+                }
+            }
+            return sb.ToString();
+        }
+
         // ---- 以下都是从 PolarisResourceCatalog 原样搬过来的私有实现 ----
 
         private static List<TypeDecl> FindTypeDecls(string text, bool[] masked)
@@ -246,7 +343,9 @@ namespace PolarisTools.Res
                 types.Add(new TypeDecl
                 {
                     Name = m.Groups["name"].Value,
+                    Mods = m.Groups["mods"].Value,
                     DeclIndex = m.Index,
+                    NameEnd = m.Index + m.Length,
                     BodyStart = bodyStart,
                     BodyEnd = bodyEnd,
                 });

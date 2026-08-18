@@ -207,6 +207,16 @@ namespace PolarisTools.Pui.PuiVisualEditor
                 case PuiElementType.Image:
                     RenderImage(dc, elem, rect, isSelected);
                     break;
+                case PuiElementType.Custom:
+                {
+                    // 真正的绘制内容来自后端 IPuiCustomControl，编辑器画布画不出来（不会加载/执行后端
+                    // 程序集），只示意占位区域 + 标出选了哪个后端类型（未选则提示未设置）。
+                    string label = string.IsNullOrEmpty(elem.BackendType)
+                        ? "⚙ " + elem.Name
+                        : "⚙ " + ShortReference(elem.BackendType);
+                    RenderLabeledBox(dc, elem, rect, isSelected, Brushes.DarkSlateGray, Brushes.White, label);
+                    break;
+                }
             }
         }
 

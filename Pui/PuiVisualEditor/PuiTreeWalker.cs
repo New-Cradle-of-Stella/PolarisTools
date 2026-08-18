@@ -284,6 +284,16 @@ internal static class PuiTreeWalker
                     ImageSource = e.ImageSource,
                 });
                 break;
+
+            case PuiElementType.Custom:
+                emitter.AddCustom(new PuiCustomParams
+                {
+                    Name = e.Name,
+                    Width = e.Width,
+                    Height = e.Height,
+                    BackendType = e.BackendType,
+                });
+                break;
         }
     }
 

@@ -1,6 +1,7 @@
 using Polaris.Localization;
 using Polaris.PUI;
 using Polaris.PUI.Wire;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -253,6 +254,20 @@ internal sealed class CSharpTextEmitter : IPuiEmitter
         }
 
         lines.Add($"designer.addImg({varName});");
+    }
+
+    public void AddCustom(PuiCustomParams p)
+    {
+        if (string.IsNullOrEmpty(p.BackendType))
+        {
+            throw new InvalidOperationException($"Custom element \"{p.Name}\" has no BackendType set; pick a type implementing Polaris.PUI.IPuiCustomControl in the property panel.");
+        }
+
+        string varName = NextVar();
+        lines.Add($"var {varName} = new DsnDataImg {{ name = \"{Esc(p.Name)}\", swidth = {F(p.Width)}, sheight = {F(p.Height)} }};");
+        string blockVar = NextVar();
+        lines.Add($"var {blockVar} = designer.addImg({varName});");
+        lines.Add($"global::Polaris.PUI.PuiCustomControl.Attach({varName}, {blockVar}, new global::{p.BackendType}(), {F(p.Width)}, {F(p.Height)});");
     }
 
     public void OnBuildCompleted(string methodName) => lines.Add($"{methodName}(designer);");

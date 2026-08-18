@@ -32,6 +32,7 @@ internal interface IPuiEmitter
     void AddNumCounter(PuiNumCounterParams p);
     void AddColorCell(PuiColorCellParams p);
     void AddImage(PuiImageParams p);
+    void AddCustom(PuiCustomParams p);
 
     /// <summary>Window.OnBuildCompleted：在所有子元素语句之后触发。</summary>
     void OnBuildCompleted(string methodName);
