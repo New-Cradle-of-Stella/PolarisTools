@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TextTemplating.VSHost;
 using PolarisTools.Event.Actors;
 using PolarisTools.Event.Pevt;
 using PolarisTools.Lang;
+using PolarisTools.Particles.PEffectEditor;
 using PolarisTools.Pui.PuiSolutions;
 using PolarisTools.Pui.PuiVisualEditor;
 using System;
@@ -39,6 +40,9 @@ namespace PolarisTools;
 [ProvideEditorFactory(typeof(PlangEditorFactory), 112)]
 [ProvideEditorExtension(typeof(PlangEditorFactory), ".plang", 60)]
 [ProvideEditorLogicalView(typeof(PlangEditorFactory), VSConstants.LOGVIEWID.Designer_string)]
+[ProvideEditorFactory(typeof(PEffectEditorFactory), 113)]
+[ProvideEditorExtension(typeof(PEffectEditorFactory), ".peffect", 60)]
+[ProvideEditorLogicalView(typeof(PEffectEditorFactory), VSConstants.LOGVIEWID.Designer_string)]
 public sealed class PolarisToolsPackage : AsyncPackage
 {
     public const string PackageGuidString =
@@ -57,6 +61,7 @@ public sealed class PolarisToolsPackage : AsyncPackage
         RegisterEditorFactory(new PuislnEditorFactory(this));
         RegisterEditorFactory(new PuiEditorFactory());
         RegisterEditorFactory(new PlangEditorFactory());
+        RegisterEditorFactory(new PEffectEditorFactory());
         await base.InitializeAsync(cancellationToken, progress);
         await PuiSolutionWindowCommand.InitializeAsync(this);
         await PuiVisualEditorWindowCommand.InitializeAsync(this);
@@ -164,6 +169,9 @@ public sealed class PolarisToolsPackage : AsyncPackage
     {
         ThreadHelper.ThrowIfNotOnUIThread();
 
+        if (EnsurePEffectEmbeddedResource(projectItem))
+            return;
+
         GeneratorBinding? binding = FindBinding(projectItem);
         if (binding is null)
             return;
@@ -186,6 +194,60 @@ public sealed class PolarisToolsPackage : AsyncPackage
             System.Diagnostics.Debug.WriteLine(
                 $"Polaris {binding.SourceExtension} code generation failed: {ex}");
         }
+    }
+
+    /// <summary>
+    /// .peffect 不生成 C#；它本身就是要由 PolarisParticles 扫描的运行时数据，因此项目项必须是
+    /// EmbeddedResource。模板新建、手工添加现有文件以及保存旧项目中的 .peffect 都会经过这里。
+    /// </summary>
+    private static bool EnsurePEffectEmbeddedResource(ProjectItem projectItem)
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+
+        string filePath;
+        try
+        {
+            filePath = projectItem.FileNames[1];
+        }
+        catch
+        {
+            return false;
+        }
+
+        if (!filePath.EndsWith(".peffect", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        try
+        {
+            // SDK 风格项目通常暴露 ItemType；旧项目通常只暴露 BuildAction，两条都尝试。
+            try
+            {
+                Property itemType = projectItem.Properties.Item("ItemType");
+                if (itemType != null && !string.Equals(itemType.Value as string, "EmbeddedResource", StringComparison.Ordinal))
+                    itemType.Value = "EmbeddedResource";
+            }
+            catch
+            {
+                // 继续尝试 BuildAction。
+            }
+
+            try
+            {
+                Property buildAction = projectItem.Properties.Item("BuildAction");
+                if (buildAction != null)
+                    buildAction.Value = prjBuildAction.prjBuildActionEmbeddedResource;
+            }
+            catch
+            {
+                // 某些 CPS 项目只支持 ItemType；上面成功即可。
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Polaris: failed to mark .peffect as EmbeddedResource: {ex}");
+        }
+
+        return true;
     }
 
     /// <summary>按文件扩展名找出该项目项适用的生成器绑定；文件夹、虚拟节点、特殊项目项

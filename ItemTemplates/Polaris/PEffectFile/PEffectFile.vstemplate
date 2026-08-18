@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Polaris Particle Effect File</Name>
+    <Description>Embedded Polaris particle/effect definition using the original .particle syntax (.peffect)</Description>
+    <DefaultName>NewEffect.peffect</DefaultName>
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>106</SortOrder>
+    <TemplateGroupID>Polaris</TemplateGroupID>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem TargetFileName="$fileinputname$.peffect" ReplaceParameters="true">Template.peffect</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

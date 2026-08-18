@@ -27,9 +27,11 @@ PolarisTools 是 **Polaris** 系列的配套开发工具：一个 Visual Studio 
 | `.pui` | 可视化 UI 编辑器，带实时预览、颜色/数值/列表专用控件 | `.g.cs` 强类型 UI 构建代码 + 交互逻辑的 code-behind 骨架 |
 | `.puisln` | 节点图编辑器，连线定义 PUI 之间的跳转 | `.psg.cs` 不可变图蓝图 |
 | `.plang` | 表格式多语言本地化编辑器：语言从游戏自带语言里点选、可单独启用/禁用，文案一律是可换行文本，支持 CSV 导入导出 | 强类型 Key 属性 + 编译期自动注册类（保存即生成，没有单独的生成按钮） |
+| `.peffect` | 原版粒子语法编辑器，带 **Debug in game** 真机推送 | 自动设为 EmbeddedResource，由 PolarisParticles 启动时注册 |
 
 - **热重载** —— 编辑 `.pui` 时把改动直接推送给运行中的游戏，不用重启（需要目标程序集标 `[PUIHotFixEnabled]`）
-- **项目模板** —— "添加新建项"里可直接创建 `.pui` / `.puisln` / `.plang`
+- **粒子真机调试** —— 打开 `.peffect` 后点击 **Debug in game**，把项目内特效推送到运行中的游戏；F9 打开 IMGUI 预览页（需要目标插件类标 `[PEffectDebugEnabled]`）
+- **项目模板** —— "添加新建项"里可直接创建 `.pui` / `.puisln` / `.plang` / `.peffect`
 - **`.plang` 不再依赖运行时数据文件** —— 保存时生成的代码会在程序集加载时把 Key/多语言文案直接注册进 Polaris 的本地化运行时，不需要把 `.plang` 文件本身塞进发布包；项目只要引用 `Polaris.dll` 就够了
 
 ### 构建
@@ -76,9 +78,11 @@ that implementation via source links.
 | `.pui` | Visual UI editor with live preview and dedicated colour/number/list controls | `.g.cs` build code + code-behind skeleton |
 | `.puisln` | Node-graph editor wiring transitions between PUIs | `.psg.cs` immutable graph blueprint |
 | `.plang` | Grid-style multi-language localization editor: pick languages from the ones the game ships, enable/disable each, every value is wrappable text, CSV import/export | Strongly-typed key properties + a compile-time auto-registration class (generated on save — there is no separate generate button) |
+| `.peffect` | Original particle-syntax editor with **Debug in game** live push | Automatically marked EmbeddedResource and registered by PolarisParticles at startup |
 
 - **Hot reload** — push `.pui` edits straight into the running game (target assembly must be tagged `[PUIHotFixEnabled]`)
-- **Item templates** — create `.pui` / `.puisln` / `.plang` from "Add New Item"
+- **In-game particle debugging** — open a `.peffect`, click **Debug in game**, then press F9 in the running game to inspect and play it (target plugin class must be tagged `[PEffectDebugEnabled]`)
+- **Item templates** — create `.pui` / `.puisln` / `.plang` / `.peffect` from "Add New Item"
 - **`.plang` no longer needs a runtime data file** — the code generated on save registers its keys/multi-language text into Polaris's localization runtime when the assembly loads, so `.plang` files themselves don't need to ship in the release package; a reference to `Polaris.dll` is all a project needs
 
 ### Building

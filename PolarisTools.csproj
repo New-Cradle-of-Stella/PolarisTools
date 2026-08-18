@@ -75,6 +75,7 @@
 		<Compile Include="$(PolarisDir)\PolarisLang\Lang\PlangDocument.cs" Link="Lang\Shared\PlangDocument.cs" />
 		<Compile Include="$(PolarisDir)\PolarisUI\PUI\HotReload\PuiWireProtocol.cs" Link="Pui\Shared\PuiWireProtocol.cs" />
 		<Compile Include="$(PolarisDir)\PolarisCore\Localization\LocalizedString.cs" Link="Pui\Shared\LocalizedString.cs" />
+		<Compile Include="$(PolarisDir)\PolarisParticles\Debugging\PEffectDebugProtocol.cs" Link="Particles\Shared\PEffectDebugProtocol.cs" />
 	</ItemGroup>
 
 	<!-- Item Templates -->
@@ -94,6 +95,9 @@
 		</VSIXSourceItem>
 		<VSIXSourceItem Include="ItemTemplates\Polaris\PactorFile\**\*.*">
 			<VSIXSubPath>ItemTemplates\Polaris\PactorFile</VSIXSubPath>
+		</VSIXSourceItem>
+		<VSIXSourceItem Include="ItemTemplates\Polaris\PEffectFile\**\*.*">
+			<VSIXSubPath>ItemTemplates\Polaris\PEffectFile</VSIXSubPath>
 		</VSIXSourceItem>
 		<VSIXSourceItem Include="ItemTemplates\Polaris\PevtStagingFile\**\*.*">
 			<VSIXSubPath>ItemTemplates\Polaris\PevtStagingFile</VSIXSubPath>

@@ -1,0 +1,10 @@
+/* ___ $safeitemname$_spark ___ */
+count 12
+maxt 36
+type CIRCLE
+zm 12 24
+slen 0 48
+alp 255 0
+
+/* ___ SETTER.$safeitemname$_preview ___ */
+$safeitemname$_spark
