@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Magic Definition</Name>
+    <Description>Polaris custom magic: static parameters (.pmagic) plus the RunAsync code-behind (.pmagic.cs)</Description>
+    <DefaultName>NewMagic.pmagic</DefaultName>
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>100</SortOrder>
+    <TemplateGroupID>Polaris</TemplateGroupID>
+  </TemplateData>
+  <TemplateContent>
+    <!--
+      模板只创建两个作者文件。ExampleMagic.pmagic.g.cs 由第一次运行单文件生成器产生，
+      模板不创建空的生成文件——一个内容为空的 .g.cs 会先被编译一次，作者看到的第一批错误
+      就成了"找不到类型"，而不是真正的问题。
+
+      项目项关系（CustomTool、DependentUpon、AutoGen/DesignTime/Visible）由
+      MagicFileCoordinator 在 ItemAdded 事件里补齐，不写死在模板里：手动"添加现有项"
+      那条路径也要得到同一套元数据。
+    -->
+    <ProjectItem TargetFileName="$fileinputname$.pmagic" ReplaceParameters="true">Template.pmagic</ProjectItem>
+    <ProjectItem TargetFileName="$fileinputname$.pmagic.cs" ReplaceParameters="true">Template.pmagic.cs</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

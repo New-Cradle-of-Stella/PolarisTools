@@ -13,11 +13,16 @@
       是唯一支持的布局，少一个环境变量要配置。
     -->
     <PolarisDir Condition="'$(PolarisDir)' == ''">$(MSBuildThisFileDirectory)..\Polaris</PolarisDir>
+
+    <!-- PolarisMagic 是 Polaris 下的一个 git submodule；.pmagic 的文档模型与校验从这里链接过来。 -->
+    <PolarisMagicDir Condition="'$(PolarisMagicDir)' == ''">$(PolarisDir)\PolarisMagic</PolarisMagicDir>
   </PropertyGroup>
 
   <Target Name="CheckPolarisDir" BeforeTargets="CoreCompile">
     <Error Condition="!Exists('$(PolarisDir)\PolarisLang\Lang\PlangEntry.cs')"
            Text="Cannot find the Polaris sources: $(PolarisDir)&#xA;Polaris and PolarisTools are expected to be cloned side by side under the same parent directory -- this repository links several source files from there into its own compilation (the .plang memory model, the PUI hot reload wire protocol, and the &quot;leading &amp; = localization key&quot; rule). Clone Polaris next to this repository (as a sibling ..\Polaris directory), or override the PolarisDir MSBuild property in Directory.Build.props.user." />
+    <Error Condition="!Exists('$(PolarisMagicDir)\Authoring\MagicDefinitionDocument.cs')"
+           Text="Cannot find the PolarisMagic authoring sources: $(PolarisMagicDir)\Authoring\MagicDefinitionDocument.cs&#xA;PolarisMagic is a git submodule of the Polaris superproject; run &quot;git submodule update --init PolarisMagic&quot; inside $(PolarisDir), or override the PolarisMagicDir MSBuild property in Directory.Build.props.user." />
   </Target>
 
 </Project>

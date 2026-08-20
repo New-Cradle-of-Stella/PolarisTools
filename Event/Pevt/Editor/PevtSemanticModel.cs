@@ -41,13 +41,23 @@ namespace PolarisTools.Event.Pevt.Editor
         /// <summary>变量/常量/形参的声明类型；其余种类为 null。</summary>
         public PevtType? DeclaredType { get; }
 
-        public PevtSymbolOccurrence(PevtSymbolKind kind, string name, TextSpan span, bool isDeclaration, PevtType? declaredType = null)
+        /// <summary>外层事件为 0；每个自定义事件块使用其定义位置作为独立环境 ID。</summary>
+        public int EnvironmentId { get; }
+
+        public PevtSymbolOccurrence(
+            PevtSymbolKind kind,
+            string name,
+            TextSpan span,
+            bool isDeclaration,
+            PevtType? declaredType = null,
+            int environmentId = 0)
         {
             Kind = kind;
             Name = name;
             Span = span;
             IsDeclaration = isDeclaration;
             DeclaredType = declaredType;
+            EnvironmentId = environmentId;
         }
     }
 
@@ -114,13 +124,18 @@ namespace PolarisTools.Event.Pevt.Editor
 
             var occurrences = new List<PevtSymbolOccurrence>();
             CollectFromTokens(tokens, occurrences);
-            CollectFromStatements(document.Statements, occurrences);
+            if (document.IdDeclaration?.Parameters != null)
+            {
+                foreach (ParameterSyntax parameter in document.IdDeclaration.Parameters.Parameters)
+                    Declare(occurrences, PevtSymbolKind.Variable, parameter.Name, parameter.Type, environmentId: 0);
+            }
+            CollectFromStatements(document.Statements, occurrences, environmentId: 0);
 
             return new PevtSemanticModel(source, document, tokens, occurrences, cs, async);
         }
 
         /// <summary>
-        /// 从 token 流收集"只看形状就能确定"的出现：<c>@name</c>、<c>#label</c>、<c>_block</c>。
+        /// 从 token 流收集编辑到一半也能确定的 <c>@name</c> 出现。
         ///
         /// 走 token 而不是语法树，是因为编辑中的文档大量处于语法不完整状态——用户正打到一半的
         /// <c>@say(</c> 在树上可能根本不成节点，但补全和快速信息必须在那一刻就工作。
@@ -136,117 +151,135 @@ namespace PolarisTools.Event.Pevt.Editor
                 SyntaxToken previous = tokens[i - 1];
                 if (previous.Kind == SyntaxKind.AtToken)
                     result.Add(new PevtSymbolOccurrence(PevtSymbolKind.BuiltinCall, token.Text, token.Span, false));
-                else if (previous.Kind == SyntaxKind.HashToken)
-                    result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Label, token.Text, token.Span, previous.Kind == SyntaxKind.HashToken));
             }
         }
 
-        private static void CollectFromStatements(IReadOnlyList<StatementSyntax> statements, List<PevtSymbolOccurrence> result)
+        private static void CollectFromStatements(
+            IReadOnlyList<StatementSyntax> statements,
+            List<PevtSymbolOccurrence> result,
+            int environmentId)
         {
             foreach (StatementSyntax statement in statements)
-                CollectFromStatement(statement, result);
+                CollectFromStatement(statement, result, environmentId);
         }
 
-        private static void CollectFromStatement(StatementSyntax statement, List<PevtSymbolOccurrence> result)
+        private static void CollectFromStatement(StatementSyntax statement, List<PevtSymbolOccurrence> result, int environmentId)
         {
             switch (statement)
             {
                 case VariableDeclarationSyntax variable:
-                    Declare(result, PevtSymbolKind.Variable, variable.Name, variable.Type);
-                    CollectFromExpression(variable.Initializer, result);
+                    Declare(result, PevtSymbolKind.Variable, variable.Name, variable.Type, environmentId);
+                    CollectFromExpression(variable.Initializer, result, environmentId);
                     return;
 
                 case ConstantDeclarationSyntax constant:
-                    Declare(result, PevtSymbolKind.Constant, constant.Name, constant.Type);
-                    CollectFromExpression(constant.Initializer, result);
+                    Declare(result, PevtSymbolKind.Constant, constant.Name, constant.Type, environmentId);
+                    CollectFromExpression(constant.Initializer, result, environmentId);
                     return;
 
                 case HandlerDeclarationStatementSyntax handler:
                     if (!handler.Name.IsMissing)
-                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Handler, handler.Name.Text, handler.Name.Span, true));
-                    CollectFromExpression(handler.Initializer, result);
+                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Handler, handler.Name.Text, handler.Name.Span, true, environmentId: environmentId));
+                    CollectFromExpression(handler.Initializer, result, environmentId);
                     return;
 
                 case BlockDefinitionStatementSyntax block:
                     if (!block.Name.IsMissing)
                         result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Block, block.Name.Text, block.Name.Span, true));
+                    int blockEnvironmentId = block.Name.IsMissing ? block.Span.Start : block.Name.Span.Start;
                     if (block.Parameters != null)
                     {
                         foreach (ParameterSyntax parameter in block.Parameters.Parameters)
-                            Declare(result, PevtSymbolKind.Variable, parameter.Name, parameter.Type);
+                            Declare(result, PevtSymbolKind.Variable, parameter.Name, parameter.Type, blockEnvironmentId);
                     }
 
-                    CollectFromStatements(block.Body, result);
+                    CollectFromStatements(block.Body, result, blockEnvironmentId);
                     return;
 
                 case LabelStatementSyntax label:
                     if (!label.Name.IsMissing)
-                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Label, label.Name.Text, label.Name.Span, true));
+                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Label, label.Name.Text, label.Name.Span, true, environmentId: environmentId));
                     return;
 
                 case GotoLabelStatementSyntax gotoLabel:
                     if (!gotoLabel.Name.IsMissing)
-                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Label, gotoLabel.Name.Text, gotoLabel.Name.Span, false));
+                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Label, gotoLabel.Name.Text, gotoLabel.Name.Span, false, environmentId: environmentId));
                     return;
 
                 case AssignmentStatementSyntax assignment:
                     if (!assignment.Target.IsMissing)
-                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Variable, assignment.Target.Text, assignment.Target.Span, false));
-                    CollectFromExpression(assignment.Value, result);
+                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Variable, assignment.Target.Text, assignment.Target.Span, false, environmentId: environmentId));
+                    CollectFromExpression(assignment.Value, result, environmentId);
                     return;
 
                 case KillStatementSyntax kill:
                     if (!kill.Handle.IsMissing)
-                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Handler, kill.Handle.Text, kill.Handle.Span, false));
+                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Handler, kill.Handle.Text, kill.Handle.Span, false, environmentId: environmentId));
                     return;
 
                 case IfStatementSyntax ifStatement:
-                    CollectFromExpression(ifStatement.Condition, result);
-                    CollectFromStatements(ifStatement.Body, result);
+                    CollectFromExpression(ifStatement.Condition, result, environmentId);
+                    CollectFromStatements(ifStatement.Body, result, environmentId);
                     foreach (ElifClauseSyntax elif in ifStatement.ElifClauses)
                     {
-                        CollectFromExpression(elif.Condition, result);
-                        CollectFromStatements(elif.Body, result);
+                        CollectFromExpression(elif.Condition, result, environmentId);
+                        CollectFromStatements(elif.Body, result, environmentId);
                     }
 
                     if (ifStatement.ElseClause != null)
-                        CollectFromStatements(ifStatement.ElseClause.Body, result);
+                        CollectFromStatements(ifStatement.ElseClause.Body, result, environmentId);
+                    return;
+
+                case IfDefStatementSyntax ifDefStatement:
+                    CollectFromStatements(ifDefStatement.Body, result, environmentId);
+                    if (ifDefStatement.HasElse)
+                        CollectFromStatements(ifDefStatement.ElseBody, result, environmentId);
                     return;
 
                 case WhileStatementSyntax whileStatement:
-                    CollectFromExpression(whileStatement.Condition, result);
-                    CollectFromStatements(whileStatement.Body, result);
+                    CollectFromExpression(whileStatement.Condition, result, environmentId);
+                    CollectFromStatements(whileStatement.Body, result, environmentId);
                     return;
 
                 case SwitchStatementSyntax switchStatement:
-                    CollectFromExpression(switchStatement.Value, result);
+                    CollectFromExpression(switchStatement.Value, result, environmentId);
                     foreach (SwitchArmSyntax arm in switchStatement.Arms)
                     {
                         if (arm is CaseArmSyntax caseArm)
-                            CollectFromExpression(caseArm.Value, result);
-                        CollectFromStatements(arm.Body, result);
+                            CollectFromExpression(caseArm.Value, result, environmentId);
+                        CollectFromStatements(arm.Body, result, environmentId);
                     }
 
                     return;
 
                 case ReturnStatementSyntax returnStatement:
                     if (returnStatement.Target != null && !returnStatement.Target.IsMissing)
-                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Variable, returnStatement.Target.Text, returnStatement.Target.Span, false));
+                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Variable, returnStatement.Target.Text, returnStatement.Target.Span, false, environmentId: environmentId));
                     return;
 
                 case ExpressionStatementSyntax expressionStatement:
-                    CollectFromExpression(expressionStatement.Expression, result);
+                    CollectFromExpression(expressionStatement.Expression, result, environmentId);
+                    return;
+
+                case ScheduleStatementSyntax schedule:
+                    CollectFromExpression(schedule.Frames, result, environmentId);
+                    CollectFromExpression(schedule.Target, result, environmentId);
                     return;
             }
         }
 
-        private static void Declare(List<PevtSymbolOccurrence> result, PevtSymbolKind kind, SyntaxToken name, SyntaxToken type)
+        private static void Declare(
+            List<PevtSymbolOccurrence> result,
+            PevtSymbolKind kind,
+            SyntaxToken name,
+            SyntaxToken type,
+            int environmentId)
         {
             if (name.IsMissing)
                 return;
 
             PevtType? declared = type.IsMissing ? (PevtType?)null : TryType(type.Kind);
-            result.Add(new PevtSymbolOccurrence(kind, name.Text, name.Span, true, declared));
+            result.Add(new PevtSymbolOccurrence(kind, name.Text, name.Span, true, declared, environmentId));
         }
 
         private static PevtType? TryType(SyntaxKind kind)
@@ -262,7 +295,10 @@ namespace PolarisTools.Event.Pevt.Editor
             }
         }
 
-        private static void CollectFromExpression(ExpressionSyntax? expression, List<PevtSymbolOccurrence> result)
+        private static void CollectFromExpression(
+            ExpressionSyntax? expression,
+            List<PevtSymbolOccurrence> result,
+            int environmentId)
         {
             switch (expression)
             {
@@ -271,48 +307,48 @@ namespace PolarisTools.Event.Pevt.Editor
 
                 case NameExpressionSyntax name:
                     if (!name.Identifier.IsMissing)
-                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Variable, name.Identifier.Text, name.Identifier.Span, false));
+                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Variable, name.Identifier.Text, name.Identifier.Span, false, environmentId: environmentId));
                     return;
 
                 case ParenthesizedExpressionSyntax parenthesized:
-                    CollectFromExpression(parenthesized.Inner, result);
+                    CollectFromExpression(parenthesized.Inner, result, environmentId);
                     return;
 
                 case ConversionExpressionSyntax conversion:
                     if (!conversion.Variable.IsMissing)
-                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Variable, conversion.Variable.Text, conversion.Variable.Span, false));
+                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Variable, conversion.Variable.Text, conversion.Variable.Span, false, environmentId: environmentId));
                     return;
 
                 case UnaryExpressionSyntax unary:
-                    CollectFromExpression(unary.Operand, result);
+                    CollectFromExpression(unary.Operand, result, environmentId);
                     return;
 
                 case ChainedBinaryExpressionSyntax chain:
-                    CollectFromExpression(chain.First, result);
+                    CollectFromExpression(chain.First, result, environmentId);
                     foreach (BinaryChainSegment segment in chain.Segments)
-                        CollectFromExpression(segment.Operand, result);
+                        CollectFromExpression(segment.Operand, result, environmentId);
                     return;
 
                 case BuiltinCallExpressionSyntax builtin:
                     foreach (ExpressionSyntax argument in builtin.Arguments.Arguments)
-                        CollectFromExpression(argument, result);
+                        CollectFromExpression(argument, result, environmentId);
                     return;
 
                 case CustomBlockCallExpressionSyntax blockCall:
                     if (!blockCall.Name.IsMissing)
                         result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Block, blockCall.Name.Text, blockCall.Name.Span, false));
                     foreach (ExpressionSyntax argument in blockCall.Arguments.Arguments)
-                        CollectFromExpression(argument, result);
+                        CollectFromExpression(argument, result, environmentId);
                     return;
 
                 case AwaitExpressionSyntax await:
                     if (!await.Handle.IsMissing)
-                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Handler, await.Handle.Text, await.Handle.Span, false));
+                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Handler, await.Handle.Text, await.Handle.Span, false, environmentId: environmentId));
                     return;
 
                 case StatusExpressionSyntax status:
                     if (!status.Handle.IsMissing)
-                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Handler, status.Handle.Text, status.Handle.Span, false));
+                        result.Add(new PevtSymbolOccurrence(PevtSymbolKind.Handler, status.Handle.Text, status.Handle.Span, false, environmentId: environmentId));
                     return;
             }
         }
@@ -337,11 +373,28 @@ namespace PolarisTools.Event.Pevt.Editor
             var result = new List<PevtSymbolOccurrence>();
             foreach (PevtSymbolOccurrence occurrence in Occurrences)
             {
-                if (occurrence.Kind == target.Kind && string.Equals(occurrence.Name, target.Name, StringComparison.Ordinal))
+                if (SymbolsMatch(occurrence, target))
                     result.Add(occurrence);
             }
 
             return result;
+        }
+
+        private static bool SymbolsMatch(PevtSymbolOccurrence left, PevtSymbolOccurrence right)
+        {
+            if (!string.Equals(left.Name, right.Name, StringComparison.Ordinal))
+                return false;
+
+            bool leftValue = left.Kind == PevtSymbolKind.Variable || left.Kind == PevtSymbolKind.Constant;
+            bool rightValue = right.Kind == PevtSymbolKind.Variable || right.Kind == PevtSymbolKind.Constant;
+            if (leftValue && rightValue)
+                return left.EnvironmentId == right.EnvironmentId;
+
+            if (left.Kind != right.Kind)
+                return false;
+
+            return left.Kind != PevtSymbolKind.Handler && left.Kind != PevtSymbolKind.Label
+                || left.EnvironmentId == right.EnvironmentId;
         }
 
         /// <summary>同名同类的声明处；没有声明（例如跨模组 actor、晚注册事件）时为 null。</summary>
@@ -526,12 +579,13 @@ namespace PolarisTools.Event.Pevt.Editor
             return builder.ToString();
         }
 
-        /// <summary>执行方式、能力要求与参数域，也就是作者真正需要知道的那几件事。</summary>
+        /// <summary>方法用途、执行方式与参数域，也就是作者真正需要知道的那几件事。</summary>
         public static string DescribeDetails(CommandDescriptor descriptor)
         {
             var lines = new List<string>();
+            if (!string.IsNullOrWhiteSpace(descriptor.Description))
+                lines.Add("说明：" + descriptor.Description);
             lines.Add("执行方式：" + WaitKindText(descriptor.WaitKind));
-            lines.Add("优先级：" + descriptor.Priority);
 
             if (descriptor.CanRunInParallel)
                 lines.Add("可并行：调用 @" + descriptor.StartName + " 立即返回 handler（需要 enable async）");
@@ -545,9 +599,6 @@ namespace PolarisTools.Event.Pevt.Editor
                 .ToList();
             if (domains.Count > 0)
                 lines.Add("参数域：" + string.Join("；", domains));
-
-            if (!string.IsNullOrEmpty(descriptor.Capability))
-                lines.Add("能力标识：" + descriptor.Capability);
 
             return string.Join(Environment.NewLine, lines);
         }

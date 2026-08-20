@@ -46,12 +46,37 @@ namespace PolarisTools.Lang
 
         readonly ObservableCollection<LocaleOption> options = new();
         readonly Func<string, bool> languageExists;
+        readonly bool singleSelect;
 
         /// <param name="languageExists">判断某个语言代码在当前文档里是否已存在。</param>
-        public PlangLocalePickerDialog(Func<string, bool> languageExists)
+        /// <param name="title">标题栏与页面标题；null 用默认的「添加语言」。</param>
+        /// <param name="description">标题下那行说明；null 用默认的那句。</param>
+        /// <param name="singleSelect">
+        /// 只能选一个。给「快速本地化」这种"这批文案是用哪门语言写的"的问法用——那里选两门语言没有意义。
+        /// </param>
+        /// <param name="okText">确认按钮文案；null 用默认的 Add。</param>
+        public PlangLocalePickerDialog(
+            Func<string, bool> languageExists,
+            string title = null,
+            string description = null,
+            bool singleSelect = false,
+            string okText = null)
         {
             this.languageExists = languageExists;
+            this.singleSelect = singleSelect;
             InitializeComponent();
+
+            if (!string.IsNullOrEmpty(title))
+            {
+                Title = title;
+                TitleText.Text = title;
+            }
+
+            if (!string.IsNullOrEmpty(description))
+                DescriptionText.Text = description;
+
+            if (!string.IsNullOrEmpty(okText))
+                OkButton.Content = okText;
 
             foreach (PlangLocaleInfo info in PlangLocaleCatalog.BuiltIn)
                 options.Add(new LocaleOption(info, languageExists?.Invoke(info.Code) == true));
@@ -63,7 +88,24 @@ namespace PolarisTools.Lang
         public IReadOnlyList<(string Code, string DisplayName)> SelectedLocales { get; private set; } =
             Array.Empty<(string, string)>();
 
-        void LocaleCard_Click(object sender, RoutedEventArgs e) => RefreshState();
+        void LocaleCard_Click(object sender, RoutedEventArgs e)
+        {
+            // 单选模式下靠代码维持互斥，而不是换一套 RadioButton 模板：列表模板只有一份，
+            // 两种模式的外观和交互手感因此完全一致。
+            if (singleSelect && sender is System.Windows.Controls.Primitives.ToggleButton clicked
+                && clicked.IsChecked == true && clicked.DataContext is LocaleOption picked)
+            {
+                foreach (LocaleOption option in options)
+                {
+                    if (!ReferenceEquals(option, picked))
+                        option.IsSelected = false;
+                }
+
+                LocaleList.Items.Refresh();
+            }
+
+            RefreshState();
+        }
 
         void CustomCode_TextChanged(object sender, RoutedEventArgs e) => RefreshState();
 
@@ -90,6 +132,10 @@ namespace PolarisTools.Lang
             var picked = options.Where(o => o.IsSelected && !o.AlreadyAdded)
                                 .Select(o => (o.Code, o.DisplayName))
                                 .ToList();
+
+            // 单选模式下手填的代码优先：作者既点了卡片又打了字，说明后打的那个才是他要的。
+            if (singleSelect && !string.IsNullOrEmpty(CustomCodeBox.Text?.Trim()))
+                picked.Clear();
 
             string custom = CustomCodeBox.Text?.Trim() ?? "";
             if (custom.Length > 0)

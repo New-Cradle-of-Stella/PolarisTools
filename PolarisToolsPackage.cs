@@ -5,7 +5,12 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.TextTemplating.VSHost;
 using PolarisTools.Event.Actors;
 using PolarisTools.Event.Pevt;
+using PolarisTools.Event.Pevt.Live;
 using PolarisTools.Lang;
+using PolarisTools.Magic;
+using PolarisTools.Magic.DefinitionEditor;
+using PolarisTools.Magic.Generation;
+using PolarisTools.Particles.Generation;
 using PolarisTools.Particles.PEffectEditor;
 using PolarisTools.Pui.PuiSolutions;
 using PolarisTools.Pui.PuiVisualEditor;
@@ -25,6 +30,9 @@ namespace PolarisTools;
 [ProvideCodeGenerator(typeof(PolarisLangGenerator), PolarisLangGenerator.GeneratorName, "Polaris .plang Source Generator", true)]
 [ProvideCodeGenerator(typeof(PolarisPevtGenerator), PolarisPevtGenerator.GeneratorName, "Polaris .pevt Source Generator", true)]
 [ProvideCodeGenerator(typeof(PolarisPactorGenerator), PolarisPactorGenerator.GeneratorName, "Polaris .pactor Source Generator", true)]
+[ProvideCodeGenerator(typeof(PolarisPactorExtensionGenerator), PolarisPactorExtensionGenerator.GeneratorName, "Polaris .pactorx Source Generator", true)]
+[ProvideCodeGenerator(typeof(PolarisMagicGenerator), PolarisMagicGenerator.GeneratorName, "Polaris Magic Source Generator", true)]
+[ProvideCodeGenerator(typeof(PolarisPEffectGenerator), PolarisPEffectGenerator.GeneratorName, "Polaris .peffect Source Generator", true)]
 [Guid(PackageGuidString)]
 [ProvideMenuResource("Menus.ctmenu", 1)]
 [ProvideToolWindow(typeof(PuiSolutionWindow))]
@@ -43,6 +51,9 @@ namespace PolarisTools;
 [ProvideEditorFactory(typeof(PEffectEditorFactory), 113)]
 [ProvideEditorExtension(typeof(PEffectEditorFactory), ".peffect", 60)]
 [ProvideEditorLogicalView(typeof(PEffectEditorFactory), VSConstants.LOGVIEWID.Designer_string)]
+[ProvideEditorFactory(typeof(PmagicEditorFactory), 114)]
+[ProvideEditorExtension(typeof(PmagicEditorFactory), ".pmagic", 61)]
+[ProvideEditorLogicalView(typeof(PmagicEditorFactory), VSConstants.LOGVIEWID.Designer_string)]
 public sealed class PolarisToolsPackage : AsyncPackage
 {
     public const string PackageGuidString =
@@ -62,6 +73,7 @@ public sealed class PolarisToolsPackage : AsyncPackage
         RegisterEditorFactory(new PuiEditorFactory());
         RegisterEditorFactory(new PlangEditorFactory());
         RegisterEditorFactory(new PEffectEditorFactory());
+        RegisterEditorFactory(new PmagicEditorFactory());
         await base.InitializeAsync(cancellationToken, progress);
         await PuiSolutionWindowCommand.InitializeAsync(this);
         await PuiVisualEditorWindowCommand.InitializeAsync(this);
@@ -76,6 +88,9 @@ public sealed class PolarisToolsPackage : AsyncPackage
             {
                 _projectItemsEvents = _events2.ProjectItemsEvents;
                 _projectItemsEvents.ItemAdded += OnProjectItemAdded;
+
+                // .pmagic 组的重命名要带着关联文件一起走，见 MagicFileCoordinator.OnRenamed。
+                _projectItemsEvents.ItemRenamed += OnProjectItemRenamed;
             }
 
             _documentEvents = _dte.Events.DocumentEvents;
@@ -94,7 +109,10 @@ public sealed class PolarisToolsPackage : AsyncPackage
         if (disposing)
         {
             if (_projectItemsEvents is not null)
+            {
                 _projectItemsEvents.ItemAdded -= OnProjectItemAdded;
+                _projectItemsEvents.ItemRenamed -= OnProjectItemRenamed;
+            }
 
             if (_documentEvents is not null)
                 _documentEvents.DocumentSaved -= OnDocumentSaved;
@@ -107,6 +125,14 @@ public sealed class PolarisToolsPackage : AsyncPackage
     {
         ThreadHelper.ThrowIfNotOnUIThread();
 
+        EnableAndGenerate(projectItem);
+    }
+
+    private void OnProjectItemRenamed(ProjectItem projectItem, string oldName)
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+
+        MagicFileCoordinator.OnRenamed(projectItem, oldName);
         EnableAndGenerate(projectItem);
     }
 
@@ -135,16 +161,21 @@ public sealed class PolarisToolsPackage : AsyncPackage
         /// 再拼上 DefaultExtension"，所以 Foo.pui -> Foo.g.cs，不是 Foo.pui.g.cs。</summary>
         public string GeneratedExtension { get; }
 
-        /// <summary>非空时在跑生成器之前执行（目前只有 .pui 用得上）。</summary>
+        /// <summary>非空时在跑生成器之前执行（.pui 补回调桩，.pmagic 建 code-behind）。</summary>
         public Action<ProjectItem>? BeforeGenerate { get; }
 
+        /// <summary>非空时在生成器跑完之后执行（目前只有 .pmagic 用得上：把生成物挂成 AutoGen 子项）。</summary>
+        public Action<ProjectItem>? AfterGenerate { get; }
+
         public GeneratorBinding(string sourceExtension, string generatorName, string generatedExtension,
-            Action<ProjectItem>? beforeGenerate = null)
+            Action<ProjectItem>? beforeGenerate = null,
+            Action<ProjectItem>? afterGenerate = null)
         {
             SourceExtension = sourceExtension;
             GeneratorName = generatorName;
             GeneratedExtension = generatedExtension;
             BeforeGenerate = beforeGenerate;
+            AfterGenerate = afterGenerate;
         }
     }
 
@@ -156,8 +187,18 @@ public sealed class PolarisToolsPackage : AsyncPackage
         new GeneratorBinding(".plang", PolarisLangGenerator.GeneratorName, ".g.cs"),
         // .pevt 生成的只是压缩载荷提交器，.pactor 生成的只是不可变人物数据与延迟资源访问器，
         // 两者都没有"用户手写 code-behind"这个概念。
-        new GeneratorBinding(".pevt", PolarisPevtGenerator.GeneratorName, ".g.cs"),
+        // .pevt 的 AfterGenerate 把项目快照推给正在运行的游戏（见 PevtLivePush）：排在生成之后，
+        // 保证"编译进程序集的那一份"和"推过去的那一份"出自同一次保存；游戏没开着时静默跳过。
+        new GeneratorBinding(".pevt", PolarisPevtGenerator.GeneratorName, ".g.cs",
+            afterGenerate: PevtLivePush.AfterGenerate),
         new GeneratorBinding(".pactor", PolarisPactorGenerator.GeneratorName, ".g.cs"),
+        new GeneratorBinding(".pactorx", PolarisPactorExtensionGenerator.GeneratorName, ".g.cs"),
+        new GeneratorBinding(".peffect", PolarisPEffectGenerator.GeneratorName, ".g.cs"),
+        // .pmagic 是三文件一组里的根文件：作者手写的 .pmagic.cs 由 MagicFileCoordinator 负责创建、
+        // 挂进项目并补齐 RunAsync；GeneratedExtension 写 ".pmagic.g.cs" 而不是 ".g.cs"，
+        // 因为单文件生成器的输出规则是"去掉源扩展名再拼 DefaultExtension"。
+        new GeneratorBinding(".pmagic", PolarisMagicGenerator.GeneratorName, ".pmagic.g.cs",
+            MagicFileCoordinator.Prepare, MagicFileCoordinator.AfterGenerate),
     };
 
     /// <summary>
@@ -169,8 +210,7 @@ public sealed class PolarisToolsPackage : AsyncPackage
     {
         ThreadHelper.ThrowIfNotOnUIThread();
 
-        if (EnsurePEffectEmbeddedResource(projectItem))
-            return;
+        EnsurePEffectEmbeddedResource(projectItem);
 
         GeneratorBinding? binding = FindBinding(projectItem);
         if (binding is null)
@@ -187,6 +227,8 @@ public sealed class PolarisToolsPackage : AsyncPackage
 
             RunCustomTool(projectItem);
 
+            binding.AfterGenerate?.Invoke(projectItem);
+
             HideGeneratedFile(projectItem, binding.GeneratedExtension);
         }
         catch (Exception ex)
@@ -197,8 +239,8 @@ public sealed class PolarisToolsPackage : AsyncPackage
     }
 
     /// <summary>
-    /// .peffect 不生成 C#；它本身就是要由 PolarisParticles 扫描的运行时数据，因此项目项必须是
-    /// EmbeddedResource。模板新建、手工添加现有文件以及保存旧项目中的 .peffect 都会经过这里。
+    /// .peffect 本身是 PolarisParticles 扫描的运行时数据，因此项目项必须是 EmbeddedResource。
+    /// 它的强类型键字段由正常的单文件生成器流程生成。
     /// </summary>
     private static bool EnsurePEffectEmbeddedResource(ProjectItem projectItem)
     {

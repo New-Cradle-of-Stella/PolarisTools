@@ -83,8 +83,8 @@
     </platformui:DialogWindow.Resources>
 
     <StackPanel Margin="20,16,20,16">
-        <TextBlock Text="Add language" Style="{StaticResource PlangDialogTitleStyle}"/>
-        <TextBlock Style="{StaticResource PlangCaptionStyle}" Margin="0,4,0,12" TextWrapping="Wrap"
+        <TextBlock x:Name="TitleText" Text="Add language" Style="{StaticResource PlangDialogTitleStyle}"/>
+        <TextBlock x:Name="DescriptionText" Style="{StaticResource PlangCaptionStyle}" Margin="0,4,0,12" TextWrapping="Wrap"
                    HorizontalAlignment="Left"
                    Text="Below are the languages shipped with the game. Click to select; you can select several at once. Each one adds a column to the grid."/>
 

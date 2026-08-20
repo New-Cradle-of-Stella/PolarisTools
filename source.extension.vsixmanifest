@@ -25,6 +25,8 @@
     <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="File" Path="ItemTemplates\Polaris\PlangFile" />
     <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="File" Path="ItemTemplates\Polaris\PevtFile" />
     <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="File" Path="ItemTemplates\Polaris\PactorFile" />
+    <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="File" Path="ItemTemplates\Polaris\PactorExtensionFile" />
     <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="File" Path="ItemTemplates\Polaris\PEffectFile" />
+    <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="File" Path="ItemTemplates\Polaris\MagicFile" />
   </Assets>
 </PackageManifest>

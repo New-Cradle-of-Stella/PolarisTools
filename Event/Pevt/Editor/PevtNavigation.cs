@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Threading;
+using System.Windows.Input;
 using EnvDTE;
 using Microsoft.VisualStudio.Commanding;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Editor.Commanding.Commands;
+using Microsoft.VisualStudio.Text.Formatting;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
 using Polaris.Pevt.Actors;
@@ -39,21 +41,8 @@ namespace PolarisTools.Event.Pevt.Editor
             {
                 ITextSnapshot snapshot = args.SubjectBuffer.CurrentSnapshot;
                 int position = args.TextView.Caret.Position.BufferPosition.Position;
-
-                PevtSemanticModel? model = PevtSemanticModel.Create(snapshot.GetText());
-                PevtSymbolOccurrence? occurrence = model?.FindAt(position);
-                if (model == null || occurrence == null)
-                    return false;
-
-                // 先试本文件内的声明。
-                PevtSymbolOccurrence? declaration = model.FindDeclaration(occurrence);
-                if (declaration != null && declaration.Span.Start != occurrence.Span.Start)
-                {
-                    var point = new SnapshotPoint(snapshot, Math.Min(declaration.Span.Start, snapshot.Length));
-                    args.TextView.Caret.MoveTo(point);
-                    args.TextView.ViewScroller.EnsureSpanVisible(new SnapshotSpan(point, 0));
+                if (PevtLocalNavigation.TryNavigate(args.TextView, args.SubjectBuffer, position))
                     return true;
-                }
 
                 // 字符串字面量里的人物 ID → .pactor。
                 return TryNavigateToActor(args, snapshot, position);
@@ -141,6 +130,93 @@ namespace PolarisTools.Event.Pevt.Editor
             }
 
             return true;
+        }
+    }
+
+    /// <summary>本文件符号跳转的公共实现，F12 与 Ctrl+左键共用。</summary>
+    internal static class PevtLocalNavigation
+    {
+        public static bool TryNavigate(
+            ITextView view,
+            ITextBuffer buffer,
+            int position,
+            bool ctrlClickableOnly = false)
+        {
+            ITextSnapshot snapshot = buffer.CurrentSnapshot;
+            PevtSemanticModel? model = PevtSemanticModel.Create(snapshot.GetText());
+            PevtSymbolOccurrence? occurrence = model?.FindAt(position);
+            if (model == null || occurrence == null)
+                return false;
+
+            if (ctrlClickableOnly && !IsCtrlClickable(occurrence.Kind))
+                return false;
+
+            PevtSymbolOccurrence? declaration = model.FindDeclaration(occurrence);
+            if (declaration == null || declaration.Span.Start == occurrence.Span.Start)
+                return false;
+
+            var point = new SnapshotPoint(snapshot, Math.Min(declaration.Span.Start, snapshot.Length));
+            view.Selection.Clear();
+            view.Caret.MoveTo(point);
+            view.ViewScroller.EnsureSpanVisible(new SnapshotSpan(point, 0));
+            return true;
+        }
+
+        private static bool IsCtrlClickable(PevtSymbolKind kind) =>
+            kind == PevtSymbolKind.Variable ||
+            kind == PevtSymbolKind.Constant ||
+            kind == PevtSymbolKind.Handler ||
+            kind == PevtSymbolKind.Block ||
+            kind == PevtSymbolKind.Label;
+    }
+
+    /// <summary>为变量、常量、handler、自定义事件块和标签提供与 C# 一致的 Ctrl+左键跳转。</summary>
+    [Export(typeof(IMouseProcessorProvider))]
+    [ContentType(PevtContentType.Name)]
+    [TextViewRole(PredefinedTextViewRoles.Document)]
+    [Name("PevtCtrlClickNavigation")]
+    internal sealed class PevtCtrlClickNavigationProvider : IMouseProcessorProvider
+    {
+        public IMouseProcessor GetAssociatedProcessor(IWpfTextView wpfTextView) =>
+            wpfTextView.Properties.GetOrCreateSingletonProperty(
+                () => new PevtCtrlClickNavigationProcessor(wpfTextView));
+    }
+
+    internal sealed class PevtCtrlClickNavigationProcessor : MouseProcessorBase
+    {
+        private readonly IWpfTextView _view;
+
+        public PevtCtrlClickNavigationProcessor(IWpfTextView view) => _view = view;
+
+        public override void PreprocessMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
+            if ((Keyboard.Modifiers & ModifierKeys.Control) == 0 || e.Handled)
+                return;
+
+            try
+            {
+                System.Windows.Point mouse = e.GetPosition(_view.VisualElement);
+                ITextViewLine? line = _view.TextViewLines.GetTextViewLineContainingYCoordinate(
+                    mouse.Y + _view.ViewportTop);
+                SnapshotPoint? position = line?.GetBufferPositionFromXCoordinate(
+                    mouse.X + _view.ViewportLeft, textOnly: true);
+                if (!position.HasValue)
+                    return;
+
+                if (PevtLocalNavigation.TryNavigate(
+                    _view,
+                    _view.TextBuffer,
+                    position.Value.Position,
+                    ctrlClickableOnly: true))
+                {
+                    _view.VisualElement.Focus();
+                    e.Handled = true;
+                }
+            }
+            catch (Exception)
+            {
+                // 编辑器扩展不能让一次鼠标操作影响 VS 主循环。
+            }
         }
     }
 

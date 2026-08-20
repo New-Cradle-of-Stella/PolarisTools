@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Polaris Actor Catalog Extension</Name>
+    <Description>Polaris PEVT actor catalog incremental extension sidecar (.pactorx)</Description>
+    <DefaultName>NewActorsExtension.pactorx</DefaultName>
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>121</SortOrder>
+    <TemplateGroupID>Polaris</TemplateGroupID>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem TargetFileName="$fileinputname$.pactorx" ReplaceParameters="true">Template.pactorx</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

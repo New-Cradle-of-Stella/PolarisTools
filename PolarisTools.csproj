@@ -76,10 +76,38 @@
 		<Compile Include="$(PolarisDir)\PolarisUI\PUI\HotReload\PuiWireProtocol.cs" Link="Pui\Shared\PuiWireProtocol.cs" />
 		<Compile Include="$(PolarisDir)\PolarisCore\Localization\LocalizedString.cs" Link="Pui\Shared\LocalizedString.cs" />
 		<Compile Include="$(PolarisDir)\PolarisParticles\Debugging\PEffectDebugProtocol.cs" Link="Particles\Shared\PEffectDebugProtocol.cs" />
+		<Compile Include="$(PolarisDir)\PolarisParticles\PEffectSyntax.cs" Link="Particles\Shared\PEffectSyntax.cs" />
+	</ItemGroup>
+
+	<!--
+    .pmagic 的文档模型、名字规则与 code-behind 签名契约，从 PolarisMagic 链接过来
+    （$(PolarisMagicDir) 见 Directory.Build.props）。理由和上面那批一样，但这里的后果更直接：
+
+      - 定义编辑器存盘与生成器解析是同一段 Parse 和同一份规范写法，因此不可能出现
+        "编辑器存出来的文件生成器读不了"。
+      - MagicCodeBehindContract 决定生成的 .pmagic.g.cs 引用哪个方法名/签名，也决定工具侧补出来的
+        方法桩长什么样。抄成两份就会出现"补出来的桩和生成代码引用的不是同一个方法"。
+
+    这批文件只依赖 System / System.Collections.Generic / System.Globalization / System.IO /
+    System.Text / System.Text.RegularExpressions / System.Xml / System.Xml.Linq，
+    不引用 Visual Studio、WPF、Unity、BepInEx、Harmony、原版程序集或 PolarisCore 运行对象。
+  -->
+	<ItemGroup>
+		<Compile Include="$(PolarisMagicDir)\Authoring\MagicFormatVersion.cs" Link="Magic\Shared\MagicFormatVersion.cs" />
+		<Compile Include="$(PolarisMagicDir)\Authoring\MagicIdentifier.cs" Link="Magic\Shared\MagicIdentifier.cs" />
+		<Compile Include="$(PolarisMagicDir)\Authoring\MagicPropertyType.cs" Link="Magic\Shared\MagicPropertyType.cs" />
+		<Compile Include="$(PolarisMagicDir)\Authoring\MagicDefinitionDocument.cs" Link="Magic\Shared\MagicDefinitionDocument.cs" />
+		<Compile Include="$(PolarisMagicDir)\Authoring\MagicCodeBehindContract.cs" Link="Magic\Shared\MagicCodeBehindContract.cs" />
 	</ItemGroup>
 
 	<!-- Item Templates -->
 	<ItemGroup>
+		<!--
+      模板里的 .cs 是待展开的文本（含 $rootnamespace$ 之类的替换参数），不是本项目的源码。
+      SDK 风格项目默认把 **\*.cs 全部纳入编译，不排掉的话它们会被当成真源文件编译并因为
+      那些 $ 参数报一串 CS1056。
+    -->
+		<Compile Remove="ItemTemplates\**\*.cs" />
 		<None Include="ItemTemplates\**\*.*" />
 		<VSIXSourceItem Include="ItemTemplates\Polaris\PuiFile\**\*.*">
 			<VSIXSubPath>ItemTemplates\Polaris\PuiFile</VSIXSubPath>
@@ -96,11 +124,17 @@
 		<VSIXSourceItem Include="ItemTemplates\Polaris\PactorFile\**\*.*">
 			<VSIXSubPath>ItemTemplates\Polaris\PactorFile</VSIXSubPath>
 		</VSIXSourceItem>
+		<VSIXSourceItem Include="ItemTemplates\Polaris\PactorExtensionFile\**\*.*">
+			<VSIXSubPath>ItemTemplates\Polaris\PactorExtensionFile</VSIXSubPath>
+		</VSIXSourceItem>
 		<VSIXSourceItem Include="ItemTemplates\Polaris\PEffectFile\**\*.*">
 			<VSIXSubPath>ItemTemplates\Polaris\PEffectFile</VSIXSubPath>
 		</VSIXSourceItem>
 		<VSIXSourceItem Include="ItemTemplates\Polaris\PevtStagingFile\**\*.*">
 			<VSIXSubPath>ItemTemplates\Polaris\PevtStagingFile</VSIXSubPath>
+		</VSIXSourceItem>
+		<VSIXSourceItem Include="ItemTemplates\Polaris\MagicFile\**\*.*">
+			<VSIXSubPath>ItemTemplates\Polaris\MagicFile</VSIXSubPath>
 		</VSIXSourceItem>
 	</ItemGroup>
 

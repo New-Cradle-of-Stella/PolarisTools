@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  人物目录增量扩展（PEVT-E06）：只往**已登记**的最终公开人物 ID 上追加 appearance，
+  不新建人物、不声明命名空间、不能覆盖人物元数据（DisplayName/Voice/Color/DefaultPortrait/...），
+  也不能覆盖已有 Portrait/UiPortrait/WorldSprite/Anchor 或嵌套 Actor。
+
+  Actor 必须写成完整的 "<namespace>:<local-id>"（比如别的模组登记的 "example.mod:ixia"），
+  Portrait 必须是目标人物已经登记过的 portrait——扩展不能顺带带进一份新视觉资源。
+
+  加载顺序：全部基础目录登记完之后才应用扩展；同一个 appearance ID 被两个扩展抢时，
+  先提交的留下、后来的被拒。这个文件里的每一处错误都会在编辑时以 PEVT91xx 实时报出——
+  和游戏应用扩展时用的是同一个严格 reader。
+-->
+<ActorCatalogExtension xmlns="urn:polaris:pevt:actors:v1"
+                        Version="1">
+
+  <ActorExtension Actor="example.mod:ixia">
+
+    <Appearance Id="extra-outfit"
+                Portrait="default"
+                Pose="stand"
+                Frame="neutral" />
+
+  </ActorExtension>
+
+</ActorCatalogExtension>
