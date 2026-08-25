@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Polaris AI Behavior</Name>
+    <Description>Versioned Polaris .pai behavior tree document.</Description>
+    <ProjectType>CSharp</ProjectType>
+    <DefaultName>Behavior.pai</DefaultName>
+    <SortOrder>120</SortOrder>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem ReplaceParameters="true" TargetFileName="$fileinputname$.pai">Behavior.pai</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

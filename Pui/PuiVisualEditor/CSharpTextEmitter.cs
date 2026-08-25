@@ -1,6 +1,6 @@
 using Polaris.Localization;
-using Polaris.PUI;
-using Polaris.PUI.Wire;
+using Polaris.UI;
+using Polaris.UI.Wire;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -88,7 +88,7 @@ internal sealed class CSharpTextEmitter : IPuiEmitter
             $"    private bool {wrapperName}(XX.aBtn _B)\n" +
             "    {\n" +
             $"        bool __r = {callUser};\n" +
-            $"        Polaris.PUI.PUIRuntime.Of(this)?.RaiseEvent(\"{Esc(transitionTriggerKey)}\");\n" +
+            $"        Polaris.UI.PUIRuntime.Of(this)?.RaiseEvent(\"{Esc(transitionTriggerKey)}\");\n" +
             "        return __r;\n" +
             "    }");
         return wrapperName;
@@ -249,7 +249,7 @@ internal sealed class CSharpTextEmitter : IPuiEmitter
 
         if (imageExpr != null)
         {
-            lines.Add($"global::Polaris.PUI.PuiImage.Assign({varName}, {imageExpr}, " +
+            lines.Add($"global::Polaris.UI.PuiImage.Assign({varName}, {imageExpr}, " +
                 $"{F(p.UvX)}, {F(p.UvY)}, {F(p.UvW)}, {F(p.UvH)}, {F(p.Width)}, {F(p.Height)}, {F(p.Scale)});");
         }
 
@@ -260,14 +260,14 @@ internal sealed class CSharpTextEmitter : IPuiEmitter
     {
         if (string.IsNullOrEmpty(p.BackendType))
         {
-            throw new InvalidOperationException($"Custom element \"{p.Name}\" has no BackendType set; pick a type implementing Polaris.PUI.IPuiCustomControl in the property panel.");
+            throw new InvalidOperationException($"Custom element \"{p.Name}\" has no BackendType set; pick a type implementing Polaris.UI.IPuiCustomControl in the property panel.");
         }
 
         string varName = NextVar();
         lines.Add($"var {varName} = new DsnDataImg {{ name = \"{Esc(p.Name)}\", swidth = {F(p.Width)}, sheight = {F(p.Height)} }};");
         string blockVar = NextVar();
         lines.Add($"var {blockVar} = designer.addImg({varName});");
-        lines.Add($"global::Polaris.PUI.PuiCustomControl.Attach({varName}, {blockVar}, new global::{p.BackendType}(), {F(p.Width)}, {F(p.Height)});");
+        lines.Add($"global::Polaris.UI.PuiCustomControl.Attach({varName}, {blockVar}, new global::{p.BackendType}(), {F(p.Width)}, {F(p.Height)});");
     }
 
     public void OnBuildCompleted(string methodName) => lines.Add($"{methodName}(designer);");

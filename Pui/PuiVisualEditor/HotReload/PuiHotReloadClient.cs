@@ -1,4 +1,4 @@
-using Polaris.PUI.Wire;
+using Polaris.UI.Wire;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,7 +16,7 @@ namespace PolarisTools.Pui.PuiVisualEditor.HotReload;
 public static class PuiHotReloadClient
 {
     /// <summary>跟 Polaris.PUI.HotReload.PuiHotReloadServer.PipeName 保持一致。</summary>
-    public const string PipeName = "Polaris.PUI.HotReload";
+    public const string PipeName = "Polaris.UI.HotReload";
 
     public static async Task<(bool ok, string error)> SendAsync(string puiName, IReadOnlyList<PuiWireCommand> commands, TimeSpan timeout)
     {

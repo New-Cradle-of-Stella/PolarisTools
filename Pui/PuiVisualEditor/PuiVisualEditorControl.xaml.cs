@@ -1,4 +1,4 @@
-using Polaris.PUI.Wire;
+using Polaris.UI.Wire;
 using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.Win32;

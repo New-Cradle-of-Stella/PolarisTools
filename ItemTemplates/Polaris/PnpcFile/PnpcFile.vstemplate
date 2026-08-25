@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Polaris Custom NPC</Name>
+    <Description>Custom NPC declaration backed by a PolarisRes PXLS character.</Description>
+    <DefaultName>NewNpc.pnpc</DefaultName>
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>121</SortOrder>
+    <TemplateGroupID>Polaris</TemplateGroupID>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem TargetFileName="$fileinputname$.pnpc" ReplaceParameters="true">Template.pnpc</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

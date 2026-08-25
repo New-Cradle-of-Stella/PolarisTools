@@ -3,6 +3,10 @@ using EnvDTE80;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.TextTemplating.VSHost;
+using PolarisTools.Addons.DefinitionEditor;
+using PolarisTools.Addons.Generation;
+using PolarisTools.AI.BehaviorEditor;
+using PolarisTools.AI.Npc;
 using PolarisTools.Event.Actors;
 using PolarisTools.Event.Pevt;
 using PolarisTools.Event.Pevt.Live;
@@ -10,6 +14,8 @@ using PolarisTools.Lang;
 using PolarisTools.Magic;
 using PolarisTools.Magic.DefinitionEditor;
 using PolarisTools.Magic.Generation;
+using PolarisTools.Map.Editor;
+using PolarisTools.Map.Generation;
 using PolarisTools.Particles.Generation;
 using PolarisTools.Particles.PEffectEditor;
 using PolarisTools.Pui.PuiSolutions;
@@ -32,7 +38,12 @@ namespace PolarisTools;
 [ProvideCodeGenerator(typeof(PolarisPactorGenerator), PolarisPactorGenerator.GeneratorName, "Polaris .pactor Source Generator", true)]
 [ProvideCodeGenerator(typeof(PolarisPactorExtensionGenerator), PolarisPactorExtensionGenerator.GeneratorName, "Polaris .pactorx Source Generator", true)]
 [ProvideCodeGenerator(typeof(PolarisMagicGenerator), PolarisMagicGenerator.GeneratorName, "Polaris Magic Source Generator", true)]
+[ProvideCodeGenerator(typeof(PolarisItemGenerator), PolarisItemGenerator.GeneratorName, "Polaris .pitem Source Generator", true)]
+[ProvideCodeGenerator(typeof(PolarisPluginGenerator), PolarisPluginGenerator.GeneratorName, "Polaris .pplugin Source Generator", true)]
+[ProvideCodeGenerator(typeof(PolarisSkillGenerator), PolarisSkillGenerator.GeneratorName, "Polaris .pskill Source Generator", true)]
 [ProvideCodeGenerator(typeof(PolarisPEffectGenerator), PolarisPEffectGenerator.GeneratorName, "Polaris .peffect Source Generator", true)]
+[ProvideCodeGenerator(typeof(PolarisPmapGenerator), PolarisPmapGenerator.GeneratorName, "Polaris .pmap Source Generator", true)]
+[ProvideCodeGenerator(typeof(PolarisPnpcGenerator), PolarisPnpcGenerator.GeneratorName, "Polaris .pnpc Source Generator", true)]
 [Guid(PackageGuidString)]
 [ProvideMenuResource("Menus.ctmenu", 1)]
 [ProvideToolWindow(typeof(PuiSolutionWindow))]
@@ -54,6 +65,17 @@ namespace PolarisTools;
 [ProvideEditorFactory(typeof(PmagicEditorFactory), 114)]
 [ProvideEditorExtension(typeof(PmagicEditorFactory), ".pmagic", 61)]
 [ProvideEditorLogicalView(typeof(PmagicEditorFactory), VSConstants.LOGVIEWID.Designer_string)]
+[ProvideEditorFactory(typeof(PmapEditorFactory), 115)]
+[ProvideEditorExtension(typeof(PmapEditorFactory), ".pmap", 70)]
+[ProvideEditorLogicalView(typeof(PmapEditorFactory), VSConstants.LOGVIEWID.Designer_string)]
+[ProvideEditorFactory(typeof(AddonDefinitionEditorFactory), 116)]
+[ProvideEditorExtension(typeof(AddonDefinitionEditorFactory), ".pitem", 71)]
+[ProvideEditorExtension(typeof(AddonDefinitionEditorFactory), ".pplugin", 71)]
+[ProvideEditorExtension(typeof(AddonDefinitionEditorFactory), ".pskill", 71)]
+[ProvideEditorLogicalView(typeof(AddonDefinitionEditorFactory), VSConstants.LOGVIEWID.Designer_string)]
+[ProvideEditorFactory(typeof(PaiEditorFactory), 117)]
+[ProvideEditorExtension(typeof(PaiEditorFactory), ".pai", 70)]
+[ProvideEditorLogicalView(typeof(PaiEditorFactory), VSConstants.LOGVIEWID.Designer_string)]
 public sealed class PolarisToolsPackage : AsyncPackage
 {
     public const string PackageGuidString =
@@ -74,6 +96,9 @@ public sealed class PolarisToolsPackage : AsyncPackage
         RegisterEditorFactory(new PlangEditorFactory());
         RegisterEditorFactory(new PEffectEditorFactory());
         RegisterEditorFactory(new PmagicEditorFactory());
+        RegisterEditorFactory(new PmapEditorFactory());
+        RegisterEditorFactory(new AddonDefinitionEditorFactory());
+        RegisterEditorFactory(new PaiEditorFactory());
         await base.InitializeAsync(cancellationToken, progress);
         await PuiSolutionWindowCommand.InitializeAsync(this);
         await PuiVisualEditorWindowCommand.InitializeAsync(this);
@@ -194,11 +219,16 @@ public sealed class PolarisToolsPackage : AsyncPackage
         new GeneratorBinding(".pactor", PolarisPactorGenerator.GeneratorName, ".g.cs"),
         new GeneratorBinding(".pactorx", PolarisPactorExtensionGenerator.GeneratorName, ".g.cs"),
         new GeneratorBinding(".peffect", PolarisPEffectGenerator.GeneratorName, ".g.cs"),
+        new GeneratorBinding(".pmap", PolarisPmapGenerator.GeneratorName, ".g.cs"),
+        new GeneratorBinding(".pnpc", PolarisPnpcGenerator.GeneratorName, ".g.cs"),
         // .pmagic 是三文件一组里的根文件：作者手写的 .pmagic.cs 由 MagicFileCoordinator 负责创建、
         // 挂进项目并补齐 RunAsync；GeneratedExtension 写 ".pmagic.g.cs" 而不是 ".g.cs"，
         // 因为单文件生成器的输出规则是"去掉源扩展名再拼 DefaultExtension"。
         new GeneratorBinding(".pmagic", PolarisMagicGenerator.GeneratorName, ".pmagic.g.cs",
             MagicFileCoordinator.Prepare, MagicFileCoordinator.AfterGenerate),
+        new GeneratorBinding(".pitem", PolarisItemGenerator.GeneratorName, ".pitem.g.cs"),
+        new GeneratorBinding(".pplugin", PolarisPluginGenerator.GeneratorName, ".pplugin.g.cs"),
+        new GeneratorBinding(".pskill", PolarisSkillGenerator.GeneratorName, ".pskill.g.cs"),
     };
 
     /// <summary>
@@ -210,7 +240,7 @@ public sealed class PolarisToolsPackage : AsyncPackage
     {
         ThreadHelper.ThrowIfNotOnUIThread();
 
-        EnsurePEffectEmbeddedResource(projectItem);
+        EnsureRuntimeDataEmbeddedResource(projectItem);
 
         GeneratorBinding? binding = FindBinding(projectItem);
         if (binding is null)
@@ -239,10 +269,9 @@ public sealed class PolarisToolsPackage : AsyncPackage
     }
 
     /// <summary>
-    /// .peffect 本身是 PolarisParticles 扫描的运行时数据，因此项目项必须是 EmbeddedResource。
-    /// 它的强类型键字段由正常的单文件生成器流程生成。
+    /// .peffect 与 .pai 都是游戏侧直接扫描的运行时数据，因此项目项必须是 EmbeddedResource。
     /// </summary>
-    private static bool EnsurePEffectEmbeddedResource(ProjectItem projectItem)
+    private static bool EnsureRuntimeDataEmbeddedResource(ProjectItem projectItem)
     {
         ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -256,7 +285,8 @@ public sealed class PolarisToolsPackage : AsyncPackage
             return false;
         }
 
-        if (!filePath.EndsWith(".peffect", StringComparison.OrdinalIgnoreCase))
+        if (!filePath.EndsWith(".peffect", StringComparison.OrdinalIgnoreCase)
+            && !filePath.EndsWith(".pai", StringComparison.OrdinalIgnoreCase))
             return false;
 
         try
@@ -286,7 +316,7 @@ public sealed class PolarisToolsPackage : AsyncPackage
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Polaris: failed to mark .peffect as EmbeddedResource: {ex}");
+            System.Diagnostics.Debug.WriteLine($"Polaris: failed to mark runtime data as EmbeddedResource: {ex}");
         }
 
         return true;

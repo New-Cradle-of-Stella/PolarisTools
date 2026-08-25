@@ -113,7 +113,7 @@ namespace PolarisTools.Pui.PuiVisualEditor.Controls
             }
 
             SelectedText.Text = "⚠ " + qualifiedName;
-            SelectedText.ToolTip = "This type was not found in the project (or the project could not be scanned yet). It may have been renamed, removed, or not implement Polaris.PUI.IPuiCustomControl.";
+            SelectedText.ToolTip = "This type was not found in the project (or the project could not be scanned yet). It may have been renamed, removed, or not implement Polaris.UI.IPuiCustomControl.";
         }
 
         private void OpenButton_Click(object sender, RoutedEventArgs e) => DropDown.IsOpen = !DropDown.IsOpen;
@@ -152,7 +152,7 @@ namespace PolarisTools.Pui.PuiVisualEditor.Controls
 
             EmptyHint.Visibility = Visibility.Visible;
             EmptyHint.Text = all.Count == 0
-                ? "This project has no class implementing Polaris.PUI.IPuiCustomControl yet. Write one (public, non-abstract, non-generic, with a public parameterless constructor) and it will show up here."
+                ? "This project has no class implementing Polaris.UI.IPuiCustomControl yet. Write one (public, non-abstract, non-generic, with a public parameterless constructor) and it will show up here."
                 : "No type matches the search.";
         }
 

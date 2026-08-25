@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CharacterResource points to an accessible static PxlsCharacterHandle field:
+
+  [PolarisResourceFolder("NPC")]
+  public static class NpcResources
+  {
+      [PolarisResource("helper")]
+      public static Polaris.Res.Pxls.PxlsCharacterHandle Helper;
+  }
+-->
+<PNpc Version="1"
+      Id="$rootnamespace$.$safeitemname$"
+      CharacterResource="$rootnamespace$.NpcResources.Helper"
+      InitialPose="stand"
+      Width="0.5"
+      Height="1"
+      MaxHp="100"
+      MaxMp="100"
+      HitType="None"
+      Faction="neutral" />

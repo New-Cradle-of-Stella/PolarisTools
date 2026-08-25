@@ -1,6 +1,6 @@
 using Polaris.Localization;
-using Polaris.PUI;
-using Polaris.PUI.Wire;
+using Polaris.UI;
+using Polaris.UI.Wire;
 using System;
 using System.Collections.Generic;
 using System.Windows;

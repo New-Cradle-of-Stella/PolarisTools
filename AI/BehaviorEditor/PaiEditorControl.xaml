@@ -1,0 +1,114 @@
+<UserControl x:Class="PolarisTools.AI.BehaviorEditor.PaiEditorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:nodify="https://miroiu.github.io/nodify"
+             xmlns:local="clr-namespace:PolarisTools.AI.BehaviorEditor"
+             xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
+             Background="{DynamicResource {x:Static vsshell:VsBrushes.WindowKey}}"
+             Foreground="{DynamicResource {x:Static vsshell:VsBrushes.WindowTextKey}}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="120"/>
+        </Grid.RowDefinitions>
+        <ToolBar Grid.Row="0">
+            <Button Content="Add" Click="AddNode_Click"/>
+            <Button Content="Detach" Click="DetachNode_Click"/>
+            <Button Content="Delete branch" Click="DeleteNode_Click"/>
+            <Separator/>
+            <Button Content="Child ↑" Click="MoveUp_Click"/>
+            <Button Content="Child ↓" Click="MoveDown_Click"/>
+            <Button Content="Auto layout" Click="AutoLayout_Click"/>
+            <Separator/>
+            <Button Content="Undo" Click="Undo_Click"/>
+            <Button Content="Redo" Click="Redo_Click"/>
+            <Button Content="Save" Click="Save_Click"/>
+            <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" Text="Drag output → input to parent a node."/>
+        </ToolBar>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="190"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="280"/>
+            </Grid.ColumnDefinitions>
+
+            <DockPanel Grid.Column="0" Margin="6">
+                <TextBlock DockPanel.Dock="Top" FontWeight="Bold" Text="Node catalog" Margin="0,0,0,6"/>
+                <TextBox DockPanel.Dock="Top" x:Name="SearchBox" TextChanged="SearchBox_TextChanged" Margin="0,0,0,6"/>
+                <ListBox x:Name="CatalogList" ItemsSource="{Binding Catalog}" DisplayMemberPath="DisplayName" MouseDoubleClick="CatalogList_MouseDoubleClick"/>
+            </DockPanel>
+            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch"/>
+
+            <nodify:NodifyEditor x:Name="Editor" Grid.Column="2"
+                                 ItemsSource="{Binding Nodes}"
+                                 Connections="{Binding Connections}"
+                                 PendingConnection="{Binding PendingConnection}">
+                <nodify:NodifyEditor.PendingConnectionTemplate>
+                    <DataTemplate DataType="{x:Type local:PaiPendingConnection}">
+                        <nodify:PendingConnection StartedCommand="{Binding StartCommand}"
+                                                  CompletedCommand="{Binding FinishCommand}"
+                                                  AllowOnlyConnectors="True" EnablePreview="True"/>
+                    </DataTemplate>
+                </nodify:NodifyEditor.PendingConnectionTemplate>
+                <nodify:NodifyEditor.ItemTemplate>
+                    <DataTemplate DataType="{x:Type local:PaiNodeViewModel}">
+                        <nodify:Node Header="{Binding Title}" Input="{Binding Inputs}" Output="{Binding Outputs}"
+                                     MouseLeftButtonDown="Node_MouseLeftButtonDown">
+                            <nodify:Node.InputConnectorTemplate>
+                                <DataTemplate DataType="{x:Type local:PaiConnectorViewModel}">
+                                    <nodify:NodeInput Header="Parent" IsConnected="{Binding IsConnected}"
+                                                      Anchor="{Binding Anchor, Mode=OneWayToSource}"/>
+                                </DataTemplate>
+                            </nodify:Node.InputConnectorTemplate>
+                            <nodify:Node.OutputConnectorTemplate>
+                                <DataTemplate DataType="{x:Type local:PaiConnectorViewModel}">
+                                    <nodify:NodeOutput Header="Children" IsConnected="{Binding IsConnected}"
+                                                       Anchor="{Binding Anchor, Mode=OneWayToSource}"/>
+                                </DataTemplate>
+                            </nodify:Node.OutputConnectorTemplate>
+                            <TextBlock Margin="8" Text="{Binding Model.Id}"/>
+                        </nodify:Node>
+                    </DataTemplate>
+                </nodify:NodifyEditor.ItemTemplate>
+                <nodify:NodifyEditor.ConnectionTemplate>
+                    <DataTemplate DataType="{x:Type local:PaiConnectionViewModel}">
+                        <nodify:LineConnection Source="{Binding Source.Anchor}" Target="{Binding Target.Anchor}"
+                                               Stroke="#FF4FA3D1" StrokeThickness="2"/>
+                    </DataTemplate>
+                </nodify:NodifyEditor.ConnectionTemplate>
+                <nodify:NodifyEditor.ItemContainerStyle>
+                    <Style TargetType="{x:Type nodify:ItemContainer}">
+                        <Setter Property="Location" Value="{Binding Location, Mode=TwoWay}"/>
+                    </Style>
+                </nodify:NodifyEditor.ItemContainerStyle>
+            </nodify:NodifyEditor>
+
+            <GridSplitter Grid.Column="3" HorizontalAlignment="Stretch"/>
+            <ScrollViewer Grid.Column="4" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="8">
+                    <TextBlock FontWeight="Bold" Text="Node inspector"/>
+                    <TextBlock Margin="0,8,0,2" Text="Selected node"/>
+                    <ComboBox ItemsSource="{Binding Nodes}" SelectedItem="{Binding SelectedNode}" DisplayMemberPath="Title"/>
+                    <TextBlock Margin="0,8,0,2" Text="Name"/>
+                    <TextBox Text="{Binding SelectedNode.Name, UpdateSourceTrigger=LostFocus}"/>
+                    <TextBlock Margin="0,8,0,2" Text="Ports (JSON object)"/>
+                    <TextBox x:Name="PortsText" Height="110" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" FontFamily="Consolas"/>
+                    <Button Content="Apply ports" Click="ApplyPorts_Click"/>
+                    <Separator Margin="0,12"/>
+                    <TextBlock FontWeight="Bold" Text="Behavior attributes (JSON object)"/>
+                    <TextBox x:Name="AttributesText" Height="150" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" FontFamily="Consolas"/>
+                    <Button Content="Apply behavior attributes" Click="ApplyAttributes_Click"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <DockPanel Grid.Row="2" Margin="6">
+            <TextBlock DockPanel.Dock="Top" FontWeight="Bold" Text="Diagnostics"/>
+            <ListBox ItemsSource="{Binding Diagnostics}" FontFamily="Consolas"/>
+        </DockPanel>
+    </Grid>
+</UserControl>

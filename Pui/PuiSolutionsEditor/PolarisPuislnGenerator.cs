@@ -259,7 +259,7 @@ public sealed class PolarisPuislnGenerator : IVsSingleFileGenerator
 
             namespace {{ns}};
 
-            [Polaris.PUI.PUISolutionAutoRegistration]
+            [Polaris.UI.PUISolutionAutoRegistration]
             public static class {{className}}
             {
                 public const string GraphName = "{{Esc(graphName)}}";
@@ -273,18 +273,18 @@ public sealed class PolarisPuislnGenerator : IVsSingleFileGenerator
             {{nodeKeyConsts}}
                 }
 
-                private static Polaris.PUI.PUIGraphDefinition definition;
+                private static Polaris.UI.PUIGraphDefinition definition;
 
                 /// <summary>本图的不可变蓝图；PUIManager.Init 会反射收集进图目录并自动创建一份默认共享实例。</summary>
-                public static Polaris.PUI.PUIGraphDefinition Definition => definition ??= Build();
+                public static Polaris.UI.PUIGraphDefinition Definition => definition ??= Build();
 
                 /// <summary>新建一个与其它实例互不干扰的运行时状态机；用完请调用其 Dispose()。</summary>
-                public static Polaris.PUI.PUISolution CreateSolution(string instanceName = null)
+                public static Polaris.UI.PUISolution CreateSolution(string instanceName = null)
                     => Definition.CreateSolution(instanceName);
 
-                private static Polaris.PUI.PUIGraphDefinition Build()
+                private static Polaris.UI.PUIGraphDefinition Build()
                 {
-                    return Polaris.PUI.PUIGraphDefinition.CreateBuilder(GraphName)
+                    return Polaris.UI.PUIGraphDefinition.CreateBuilder(GraphName)
             {{nodeDecls}}{{entryLine}}{{edgeDecls}}            .Build();
                 }
             }

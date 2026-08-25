@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Polaris Plugin Definition</Name>
+    <Description>Enhancer facet linked to a .pitem root with generated registration code</Description>
+    <DefaultName>NewPlugin.pplugin</DefaultName>
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>111</SortOrder>
+    <TemplateGroupID>Polaris</TemplateGroupID>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem TargetFileName="$fileinputname$.pplugin" ReplaceParameters="true">Template.pplugin</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

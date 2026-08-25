@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PSkill Version="1" Id="local.skill" ItemId="local.item" TitleKey="skill.local.title" DescriptionKey="skill.local.description" Icon="" Mode="Passive" Unlock="ConsumeOwnerItem" CooldownSeconds="0" ConcurrencyGroup="" BehaviorType="" />

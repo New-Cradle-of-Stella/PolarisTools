@@ -1,4 +1,4 @@
-using Polaris.PUI.Wire;
+using Polaris.UI.Wire;
 
 namespace PolarisTools.Pui.PuiVisualEditor;
 

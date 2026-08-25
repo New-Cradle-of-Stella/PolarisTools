@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Polaris Item Definition</Name>
+    <Description>Custom item root with generated PolarisAddons registration code</Description>
+    <DefaultName>NewItem.pitem</DefaultName>
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>110</SortOrder>
+    <TemplateGroupID>Polaris</TemplateGroupID>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem TargetFileName="$fileinputname$.pitem" ReplaceParameters="true">Template.pitem</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

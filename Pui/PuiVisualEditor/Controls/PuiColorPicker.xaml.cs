@@ -1,4 +1,4 @@
-using Polaris.PUI.Wire;
+using Polaris.UI.Wire;
 using System;
 using System.Windows;
 using System.Windows.Controls;

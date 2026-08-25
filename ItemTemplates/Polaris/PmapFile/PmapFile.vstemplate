@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Polaris Map Blueprint</Name>
+    <Description>XML high-level wrapper for a TMAP map with an asset-free visual editor</Description>
+    <DefaultName>NewMap.pmap</DefaultName>
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>108</SortOrder>
+    <TemplateGroupID>Polaris</TemplateGroupID>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem TargetFileName="$fileinputname$.pmap" ReplaceParameters="true">Template.pmap</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

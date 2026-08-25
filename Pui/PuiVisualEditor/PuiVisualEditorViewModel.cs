@@ -1,4 +1,4 @@
-using Polaris.PUI.Wire;
+using Polaris.UI.Wire;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GongSolutions.Wpf.DragDrop;

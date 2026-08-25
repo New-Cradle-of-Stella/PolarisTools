@@ -7,7 +7,7 @@ namespace PolarisTools.Pui.PuiVisualEditor
 {
     /// <summary>
     /// 编辑器专用的"项目里有哪些自定义控件后端类型"清单：把某个 <c>.pui</c> 所属项目里全部 <c>.cs</c>
-    /// 扫一遍，找出实现了 <c>Polaris.PUI.IPuiCustomControl</c> 的具体类型，供 Custom 元素的
+    /// 扫一遍，找出实现了 <c>Polaris.UI.IPuiCustomControl</c> 的具体类型，供 Custom 元素的
     /// BackendType 下拉框选择——避免用户手填类型全名时漏写命名空间、导致生成代码里
     /// <c>new global::Xxx()</c> 编译不过（不是自己写的名字，是编辑器直接抄源码里扫到的引用）。
     /// <para>

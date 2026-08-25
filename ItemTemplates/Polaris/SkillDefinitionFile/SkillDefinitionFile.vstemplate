@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Polaris Skill Definition</Name>
+    <Description>Skill facet linked to a .pitem root with generated registration code</Description>
+    <DefaultName>NewSkill.pskill</DefaultName>
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>112</SortOrder>
+    <TemplateGroupID>Polaris</TemplateGroupID>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem TargetFileName="$fileinputname$.pskill" ReplaceParameters="true">Template.pskill</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

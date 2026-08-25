@@ -41,7 +41,7 @@
         <Button x:Name="OpenButton" Grid.Column="0" Click="OpenButton_Click"
                 HorizontalContentAlignment="Stretch" Padding="4,3"
                 Background="{DynamicResource {x:Static platformui:CommonControlsColors.ComboBoxBackgroundBrushKey}}"
-                ToolTip="Pick a class implementing Polaris.PUI.IPuiCustomControl">
+                ToolTip="Pick a class implementing Polaris.UI.IPuiCustomControl">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

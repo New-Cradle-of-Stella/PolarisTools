@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pmap version="1" key="$safeitemname$" width="32" height="18" background="#F5FFEE">
+  <layers>
+    <layer name="main" key="true" color="#7F7F7F" />
+  </layers>
+</pmap>

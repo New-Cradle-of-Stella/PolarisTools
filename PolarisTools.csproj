@@ -56,6 +56,7 @@
   -->
 	<ItemGroup>
 		<ProjectReference Include="$(PolarisDir)\PolarisEvent\PolarisEvent.csproj" />
+		<ProjectReference Include="$(PolarisDir)\PolarisAI\PolarisAI.Authoring\PolarisAI.Authoring.csproj" />
 	</ItemGroup>
 
 	<!--
@@ -73,7 +74,10 @@
 	<ItemGroup>
 		<Compile Include="$(PolarisDir)\PolarisLang\Lang\PlangEntry.cs" Link="Lang\Shared\PlangEntry.cs" />
 		<Compile Include="$(PolarisDir)\PolarisLang\Lang\PlangDocument.cs" Link="Lang\Shared\PlangDocument.cs" />
-		<Compile Include="$(PolarisDir)\PolarisUI\PUI\HotReload\PuiWireProtocol.cs" Link="Pui\Shared\PuiWireProtocol.cs" />
+		<Compile Include="$(PolarisDir)\PolarisUI\UI\HotReload\PuiWireProtocol.cs" Link="Pui\Shared\PuiWireProtocol.cs" />
+		<Compile Include="$(PolarisDir)\PolarisMap\Authoring\PmapDocument.cs" Link="Map\Shared\PmapDocument.cs" />
+		<Compile Include="$(PolarisDir)\PolarisMap\Internal\MapFormat.cs" Link="Map\Shared\MapFormat.cs" />
+		<Compile Include="$(PolarisDir)\PolarisMap\HotReload\PmapWireProtocol.cs" Link="Map\Shared\PmapWireProtocol.cs" />
 		<Compile Include="$(PolarisDir)\PolarisCore\Localization\LocalizedString.cs" Link="Pui\Shared\LocalizedString.cs" />
 		<Compile Include="$(PolarisDir)\PolarisParticles\Debugging\PEffectDebugProtocol.cs" Link="Particles\Shared\PEffectDebugProtocol.cs" />
 		<Compile Include="$(PolarisDir)\PolarisParticles\PEffectSyntax.cs" Link="Particles\Shared\PEffectSyntax.cs" />
@@ -98,6 +102,12 @@
 		<Compile Include="$(PolarisMagicDir)\Authoring\MagicPropertyType.cs" Link="Magic\Shared\MagicPropertyType.cs" />
 		<Compile Include="$(PolarisMagicDir)\Authoring\MagicDefinitionDocument.cs" Link="Magic\Shared\MagicDefinitionDocument.cs" />
 		<Compile Include="$(PolarisMagicDir)\Authoring\MagicCodeBehindContract.cs" Link="Magic\Shared\MagicCodeBehindContract.cs" />
+	</ItemGroup>
+
+	<!-- .pitem/.pplugin/.pskill 的解析、规范 XML 与枚举由运行时和编辑器共用。 -->
+	<ItemGroup>
+		<Compile Include="$(PolarisAddonsDir)\Authoring\AddonFormat.cs" Link="Addons\Shared\AddonFormat.cs" />
+		<Compile Include="$(PolarisAddonsDir)\Authoring\AddonDocuments.cs" Link="Addons\Shared\AddonDocuments.cs" />
 	</ItemGroup>
 
 	<!-- Item Templates -->
@@ -135,6 +145,24 @@
 		</VSIXSourceItem>
 		<VSIXSourceItem Include="ItemTemplates\Polaris\MagicFile\**\*.*">
 			<VSIXSubPath>ItemTemplates\Polaris\MagicFile</VSIXSubPath>
+		</VSIXSourceItem>
+		<VSIXSourceItem Include="ItemTemplates\Polaris\PmapFile\**\*.*">
+			<VSIXSubPath>ItemTemplates\Polaris\PmapFile</VSIXSubPath>
+		</VSIXSourceItem>
+		<VSIXSourceItem Include="ItemTemplates\Polaris\PaiFile\**\*.*">
+			<VSIXSubPath>ItemTemplates\Polaris\PaiFile</VSIXSubPath>
+		</VSIXSourceItem>
+		<VSIXSourceItem Include="ItemTemplates\Polaris\PnpcFile\**\*.*">
+			<VSIXSubPath>ItemTemplates\Polaris\PnpcFile</VSIXSubPath>
+		</VSIXSourceItem>
+		<VSIXSourceItem Include="ItemTemplates\Polaris\ItemDefinitionFile\**\*.*">
+			<VSIXSubPath>ItemTemplates\Polaris\ItemDefinitionFile</VSIXSubPath>
+		</VSIXSourceItem>
+		<VSIXSourceItem Include="ItemTemplates\Polaris\PluginDefinitionFile\**\*.*">
+			<VSIXSubPath>ItemTemplates\Polaris\PluginDefinitionFile</VSIXSubPath>
+		</VSIXSourceItem>
+		<VSIXSourceItem Include="ItemTemplates\Polaris\SkillDefinitionFile\**\*.*">
+			<VSIXSubPath>ItemTemplates\Polaris\SkillDefinitionFile</VSIXSubPath>
 		</VSIXSourceItem>
 	</ItemGroup>
 

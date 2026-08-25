@@ -292,7 +292,7 @@ public sealed class PolarisPuiGenerator : IVsSingleFileGenerator
             // 新增的 OnClick/OnChanged/OnColorChanged 方法桩会自动追加到这个文件末尾，已有方法不会被改动。
 
             using Polaris;
-            using Polaris.PUI;
+            using Polaris.UI;
             using nel;
             using XX;
 
@@ -312,7 +312,7 @@ public sealed class PolarisPuiGenerator : IVsSingleFileGenerator
 
         using System;
         using Polaris;
-        using Polaris.PUI;
+        using Polaris.UI;
         using nel;
         using XX;
         """;
